@@ -11,10 +11,8 @@ struct NudgePaywallView: View {
     @State private var appeared = false
 
     var body: some View {
-        NavigationStack {
+        ScrollView {
             VStack(spacing: 16) {
-
-                Spacer().frame(height: 8)
 
                 // MARK: - Onboarding-Style Hero Card
                 ZStack {
@@ -109,8 +107,6 @@ struct NudgePaywallView: View {
                 .opacity(appeared ? 1 : 0)
                 .offset(y: appeared ? 0 : 10)
 
-                Spacer()
-
                 // MARK: - Package Cards
                 if let offering = subscriptionManager.offerings?.current {
                     VStack(spacing: 6) {
@@ -159,12 +155,21 @@ struct NudgePaywallView: View {
                     Button("Restore Purchases") { restore() }
                         .font(.caption)
                         .foregroundColor(.secondary)
+
+                    // Required subscription disclosure (App Store guidelines)
+                    Text("Subscription auto-renews at the same price unless cancelled at least 24 hours before the end of the current period. Manage or cancel in App Store settings.")
+                        .font(.system(size: 10))
+                        .foregroundStyle(.tertiary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 8)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.horizontal, 20)
-                .padding(.bottom, 8)
+                .padding(.bottom, 24)
             }
-            .background(AppColors.background.ignoresSafeArea())
+            .padding(.top, 24)
         }
+        .background(AppColors.background.ignoresSafeArea())
         .onAppear {
             withAnimation(.spring(response: 0.8, dampingFraction: 0.75).delay(0.05)) {
                 appeared = true

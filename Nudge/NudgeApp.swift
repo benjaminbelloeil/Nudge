@@ -9,6 +9,7 @@ import SwiftUI
 @main
 struct NudgeApp: App {
     @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         SubscriptionManager.shared.configure()
@@ -18,6 +19,11 @@ struct NudgeApp: App {
         WindowGroup {
             AppRootView()
                 .environmentObject(subscriptionManager)
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                Task { await SubscriptionManager.shared.refreshCustomerInfo() }
+            }
         }
     }
 }

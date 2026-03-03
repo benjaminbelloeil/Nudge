@@ -8,14 +8,20 @@ final class SubscriptionManager: ObservableObject {
 
     // MARK: - Published State
 
-    @Published var isProUser: Bool = false
-    @Published var customerInfo: CustomerInfo? = nil
+    @Published fileprivate(set) var isProUser: Bool = false
+    @Published fileprivate(set) var customerInfo: CustomerInfo? = nil
     @Published private(set) var offerings: Offerings? = nil
     @Published private(set) var isLoading: Bool = true
 
     // MARK: - Constants
 
-    static let apiKey = "test_oJIBiCUYTNVdzkTLVXvgUMMRUVR"
+    static var apiKey: String {
+        guard let key = Bundle.main.infoDictionary?["REVENUECAT_API_KEY"] as? String, !key.isEmpty else {
+            fatalError("Missing REVENUECAT_API_KEY in Info.plist")
+        }
+        return key
+    }
+
     static let entitlementID = "Nudge Pro"
     static let monthlyProductID = "monthly"
     static let yearlyProductID = "yearly"
@@ -30,7 +36,11 @@ final class SubscriptionManager: ObservableObject {
     // MARK: - Configure
 
     func configure() {
+        #if DEBUG
         Purchases.logLevel = .debug
+        #else
+        Purchases.logLevel = .error
+        #endif
         Purchases.configure(withAPIKey: Self.apiKey)
         Purchases.shared.delegate = RevenueCatDelegate.shared
 
