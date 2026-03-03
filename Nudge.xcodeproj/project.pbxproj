@@ -10,9 +10,22 @@
 		D9A3EC6C2F56F774005F5724 /* Nudge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nudge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D9A3ECA82F56F8B7005F5724 /* Exceptions for "Nudge" folder in "Nudge" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D9A3EC6B2F56F774005F5724 /* Nudge */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D9A3EC6E2F56F774005F5724 /* Nudge */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D9A3ECA82F56F8B7005F5724 /* Exceptions for "Nudge" folder in "Nudge" target */,
+			);
 			path = Nudge;
 			sourceTree = "<group>";
 		};
@@ -94,6 +107,9 @@
 			);
 			mainGroup = D9A3EC632F56F774005F5724;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D9A3ECA92F56F8E3005F5724 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D9A3EC6D2F56F774005F5724 /* Products */;
 			projectDirPath = "";
@@ -256,6 +272,7 @@
 				DEVELOPMENT_TEAM = DQQALW53ZU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Nudge/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -288,6 +305,7 @@
 				DEVELOPMENT_TEAM = DQQALW53ZU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Nudge/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -332,6 +350,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D9A3ECA92F56F8E3005F5724 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.60.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = D9A3EC642F56F774005F5724 /* Project object */;
 }
