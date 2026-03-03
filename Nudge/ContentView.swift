@@ -64,7 +64,7 @@ private struct NudgeFlowContainer: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(viewModel.currentResult != nil || viewModel.isGenerating || viewModel.isManualMode)
+        .navigationBarBackButtonHidden(viewModel.currentResult != nil || viewModel.isGenerating || viewModel.isManualMode || viewModel.currentStep != .task)
         .background(AppColors.background)
     }
 }

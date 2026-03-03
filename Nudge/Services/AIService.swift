@@ -15,10 +15,8 @@ final class AIService {
     private static let model = "gemini-2.5-flash-lite"
 
     private static var apiKey: String {
-        guard let url = Bundle.main.url(forResource: "Secrets", withExtension: "plist"),
-              let dict = NSDictionary(contentsOf: url),
-              let key = dict["GEMINI_API_KEY"] as? String, !key.isEmpty else {
-            fatalError("Missing GEMINI_API_KEY in Secrets.plist")
+        guard let key = Bundle.main.infoDictionary?["GEMINI_API_KEY"] as? String, !key.isEmpty else {
+            fatalError("Missing GEMINI_API_KEY in Info.plist")
         }
         return key
     }

@@ -80,7 +80,7 @@ struct DashboardView: View {
             .lineSpacing(2)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, -14)
+        .padding(.top, 8)
         .opacity(appeared ? 1 : 0)
         .offset(y: appeared ? 0 : 10)
     }

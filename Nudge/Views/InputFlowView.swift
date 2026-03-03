@@ -2,6 +2,7 @@ import SwiftUI
 
 struct InputFlowView: View {
     @ObservedObject var viewModel: NudgeViewModel
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ZStack {
@@ -45,6 +46,19 @@ struct InputFlowView: View {
                     }
                 }
                 .animation(.easeInOut(duration: 0.25), value: viewModel.currentStep)
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                if viewModel.currentStep != .task {
+                    Button {
+                        viewModel.goBack()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                    }
+                }
             }
         }
     }

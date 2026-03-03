@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D9A3ECAB2F56F8E3005F5724 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = D9A3ECAA2F56F8E3005F5724 /* RevenueCat */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		D9A3EC6C2F56F774005F5724 /* Nudge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nudge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9A3ECAB2F56F8E3005F5724 /* RevenueCat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = Nudge;
 			packageProductDependencies = (
+				D9A3ECAA2F56F8E3005F5724 /* RevenueCat */,
 			);
 			productName = Nudge;
 			productReference = D9A3EC6C2F56F774005F5724 /* Nudge.app */;
@@ -350,6 +356,14 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D9A3ECAA2F56F8E3005F5724 /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D9A3ECA92F56F8E3005F5724 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCat;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCRemoteSwiftPackageReference section */
 		D9A3ECA92F56F8E3005F5724 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {

@@ -110,19 +110,6 @@ struct NudgeResultView: View {
             bottomButtons
         }
         .background(AppColors.background)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    viewModel.saveForLater()
-                    viewModel.reset()
-                    onDismiss?()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                }
-            }
-        }
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1)) {
                 cardsAppeared = true
@@ -356,7 +343,7 @@ struct NudgeResultView: View {
                     viewModel.markComplete()
                     onDismiss?()
                 } label: {
-                    Text("Done")
+                    Text("Save & Close")
                         .font(.headline)
                         .fontWeight(.bold)
                         .frame(maxWidth: .infinity)
@@ -364,18 +351,6 @@ struct NudgeResultView: View {
                         .background(Color.accentColor)
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                }
-
-                Button {
-                    viewModel.saveForLater()
-                    viewModel.reset()
-                    onDismiss?()
-                } label: {
-                    Text("Save for Later")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundStyle(.secondary)
-                        .padding(.vertical, 8)
                 }
             }
             .padding(.horizontal, 20)

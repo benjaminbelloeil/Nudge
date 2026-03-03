@@ -156,10 +156,34 @@ final class NudgeViewModel: ObservableObject {
             print("[NudgeVM] Tier 2 skipped: Apple Intelligence not available")
         }
 
-        // TIER 3: Manual mode — user creates their own 5 missions
-        print("[NudgeVM] Tier 3: Manual mode")
+        // TIER 3: Template fallback — always give the user something actionable
+        print("[NudgeVM] Tier 3: Template fallback")
+        currentResult = generateTemplateFallback(task: taskText, energy: selectedEnergy, mood: mood)
+        currentSource = .fallback
         isGenerating = false
-        isManualMode = true
+    }
+
+    private func generateTemplateFallback(task: String, energy: EnergyLevel, mood: Mood) -> NudgeResult {
+        let friction: String
+        switch mood {
+        case .anxious, .overwhelmed, .frustrated: friction = "Overwhelm"
+        case .tired:                              friction = "Low Energy"
+        case .bored, .avoidant:                   friction = "Low Motivation"
+        default:                                  friction = "Getting Started"
+        }
+        let t = task.trimmingCharacters(in: .whitespacesAndNewlines)
+        return NudgeResult(
+            frictionLabel: friction,
+            steps: [
+                NudgeStep(id: 1, title: "Open It Up",      action: "Find and open everything you need to work on \"\(t)\"."),
+                NudgeStep(id: 2, title: "First 2 Minutes", action: "Do the very first small action on \"\(t)\" right now."),
+                NudgeStep(id: 3, title: "Keep Going",      action: "Continue from where you just stopped and do one more piece."),
+                NudgeStep(id: 4, title: "Push Further",    action: "Go slightly past your last step and add one more concrete result."),
+                NudgeStep(id: 5, title: "Wrap Up",         action: "Save your work and write a one-line note about what to do next time.")
+            ],
+            ifStuck: "Do just 2 minutes, then decide.",
+            successDefinition: "You made visible progress on \"\(t)\"."
+        )
     }
 
     var canSubmitManualMissions: Bool {

@@ -148,8 +148,21 @@ final class HistoryViewModel: ObservableObject {
     var currentStreak: Int {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
+
+        // Grace period: if no entry today yet, still count from yesterday
+        // Only reset if the last entry is 2+ days ago
+        let hasEntryToday = entries.contains { calendar.isDate($0.createdAt, inSameDayAs: today) }
+        guard let startDate = hasEntryToday
+                ? Optional(today)
+                : calendar.date(byAdding: .day, value: -1, to: today)
+        else { return 0 }
+
+        // Make sure there's actually an entry on the start date
+        let hasEntryOnStart = entries.contains { calendar.isDate($0.createdAt, inSameDayAs: startDate) }
+        guard hasEntryOnStart else { return 0 }
+
         var streak = 0
-        var checkDate = today
+        var checkDate = startDate
 
         while true {
             let hasEntry = entries.contains { entry in
