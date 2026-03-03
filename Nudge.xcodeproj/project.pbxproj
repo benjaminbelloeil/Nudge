@@ -357,14 +357,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCSwiftPackageProductDependency section */
-		D9A3ECAA2F56F8E3005F5724 /* RevenueCat */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D9A3ECA92F56F8E3005F5724 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
-			productName = RevenueCat;
-		};
-/* End XCSwiftPackageProductDependency section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		D9A3ECA92F56F8E3005F5724 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -375,6 +367,14 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D9A3ECAA2F56F8E3005F5724 /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D9A3ECA92F56F8E3005F5724 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCat;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D9A3EC642F56F774005F5724 /* Project object */;
 }

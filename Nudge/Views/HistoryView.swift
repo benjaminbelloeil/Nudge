@@ -523,7 +523,7 @@ private struct DetailInfoSection: View {
                 InfoRow(label: "Created", value: entry.createdAt.formatted(date: .abbreviated, time: .shortened))
                 InfoRow(label: "Mood", value: "\(entry.mood.emoji) \(entry.mood.displayName)")
                 InfoRow(label: "Energy", value: entry.energy.displayName)
-                InfoRow(label: "Source", value: entry.source == .ai ? "Gemini AI" : entry.source == .appleIntelligence ? "Apple Intelligence" : entry.source == .manual ? "Manual" : "Template")
+                InfoRow(label: "Source", value: entry.source == .ai ? "Nudge Pro" : entry.source == .appleIntelligence ? "Apple Intelligence" : entry.source == .manual ? "Manual" : "Template")
                 if let completedAt = entry.completedAt {
                     InfoRow(label: "Completed", value: completedAt.formatted(date: .abbreviated, time: .shortened))
                 }

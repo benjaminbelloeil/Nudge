@@ -16,6 +16,7 @@ struct StatsView: View {
                         summaryRow
 
                         if subscriptionManager.isProUser {
+                            procrastinationInsightsSection
                             weeklyChart
                             completionDonut
                             moodChart
@@ -302,6 +303,69 @@ struct StatsView: View {
         }
         .padding(18)
         .background(AppColors.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    // MARK: - Procrastination Insights
+
+    private var procrastinationInsightsSection: some View {
+        let summary = viewModel.procrastinationSummary
+        let generating = viewModel.isGeneratingInsight
+
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Text("HOW TO IMPROVE")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.secondary)
+                    .tracking(1.2)
+
+                if generating {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(0.6)
+                        .tint(Color(red: 0.55, green: 0.45, blue: 0.95).opacity(0.7))
+                }
+
+                Spacer()
+
+                Image(systemName: "arrow.up.right.circle.fill")
+                    .font(.caption)
+                    .foregroundColor(Color(red: 0.55, green: 0.45, blue: 0.95).opacity(0.6))
+            }
+
+            if let text = summary {
+                Text(text)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+                    .lineSpacing(5)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .animation(.easeInOut(duration: 0.3), value: text)
+            } else if generating {
+                HStack(spacing: 10) {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(Color(red: 0.55, green: 0.45, blue: 0.95))
+                    Text("Generating your insight...")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                Text("Keep creating nudges — your personalised reduction plan will appear here once you have more data.")
+                    .font(.subheadline)
+                    .foregroundStyle(.tertiary)
+                    .lineSpacing(4)
+            }
+        }
+        .padding(18)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Color(red: 0.55, green: 0.45, blue: 0.95).opacity(0.15), lineWidth: 1)
+                )
+        )
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }

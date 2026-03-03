@@ -8,25 +8,52 @@ final class PersistenceManager: ObservableObject {
     private let fileName = "nudge_history.json"
     @Published private(set) var entries: [NudgeEntry] = []
 
-    private var fileURL: URL {
-        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        return documents.appending(path: fileName)
+    // MARK: - File URLs
+
+    /// iCloud Documents container URL (nil when iCloud is unavailable or capability not enabled)
+    private var iCloudURL: URL? {
+        guard let base = FileManager.default.url(forUbiquityContainerIdentifier: nil) else { return nil }
+        let docs = base.appendingPathComponent("Documents", isDirectory: true)
+        try? FileManager.default.createDirectory(at: docs, withIntermediateDirectories: true)
+        return docs.appendingPathComponent(fileName)
     }
 
+    /// Local fallback (always available)
+    private var localURL: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(fileName)
+    }
+
+    /// Active storage location: prefer iCloud when available
+    private var fileURL: URL { iCloudURL ?? localURL }
+
     private let encoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        return encoder
+        let e = JSONEncoder()
+        e.dateEncodingStrategy = .iso8601
+        return e
     }()
 
     private let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return decoder
+        let d = JSONDecoder()
+        d.dateDecodingStrategy = .iso8601
+        return d
     }()
 
     init() {
+        migrateToiCloudIfNeeded()
         loadEntries()
+    }
+
+    // MARK: - iCloud Migration
+
+    /// One-time copy of local data into the iCloud container when iCloud first becomes available.
+    private func migrateToiCloudIfNeeded() {
+        guard
+            let cloudURL = iCloudURL,
+            !FileManager.default.fileExists(atPath: cloudURL.path),
+            FileManager.default.fileExists(atPath: localURL.path)
+        else { return }
+        try? FileManager.default.copyItem(at: localURL, to: cloudURL)
     }
 
     // MARK: - Load
@@ -50,7 +77,12 @@ final class PersistenceManager: ObservableObject {
     private func persist() {
         do {
             let data = try encoder.encode(entries)
+            // Write to active location (iCloud or local)
             try data.write(to: fileURL, options: .atomic)
+            // Keep a local copy in sync so the app works offline / off-iCloud too
+            if iCloudURL != nil {
+                try? data.write(to: localURL, options: .atomic)
+            }
         } catch {
             // Silent failure for MVP
         }

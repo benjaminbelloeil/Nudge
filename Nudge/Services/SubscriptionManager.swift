@@ -21,7 +21,7 @@ final class SubscriptionManager: ObservableObject {
     static let yearlyProductID = "yearly"
 
     // Free tier limit
-    static let freeNudgesPerWeek = 3
+    static let freeNudgesPerWeek = 2
 
     // MARK: - Init
 

@@ -25,6 +25,16 @@ final class AIService {
     You are Nudge, a behavioral productivity assistant. You help people overcome procrastination \
     by giving them 5 tiny, progressive micro-steps that build momentum.
 
+    CONTENT MODERATION — check this FIRST before doing anything else:
+    If the task contains ANY of the following, you MUST return the exact sentinel JSON below and nothing else:
+    • Profanity or slurs of any kind (e.g. fuck, shit, dick, bitch, cunt, ass, nigger, faggot, or any variation)
+    • Sexual or explicit content
+    • Violence, self-harm, or threats
+    • Illegal activity (drug dealing, hacking, theft, etc.)
+    • Hate speech or discrimination
+    Sentinel JSON to return for blocked content (copy exactly, no other text):
+    {"frictionLabel":"CONTENT_BLOCKED","step1Title":"","step1Action":"","step2Title":"","step2Action":"","step3Title":"","step3Action":"","step4Title":"","step4Action":"","step5Title":"","step5Action":"","ifStuck":"","successDefinition":""}
+
     Procrastination is emotional friction: overwhelm, vagueness, perfectionism, fear, or energy mismatch.
 
     THE #1 RULE: Every single step MUST be a concrete action on the EXACT task the user described. \
@@ -83,6 +93,12 @@ final class AIService {
                 "temperature": 0.7,
                 "maxOutputTokens": 1024,
                 "thinkingConfig": ["thinkingBudget": 0]
+            ],
+            "safetySettings": [
+                ["category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",   "threshold": "BLOCK_LOW_AND_ABOVE"],
+                ["category": "HARM_CATEGORY_HATE_SPEECH",         "threshold": "BLOCK_LOW_AND_ABOVE"],
+                ["category": "HARM_CATEGORY_HARASSMENT",          "threshold": "BLOCK_LOW_AND_ABOVE"],
+                ["category": "HARM_CATEGORY_DANGEROUS_CONTENT",   "threshold": "BLOCK_LOW_AND_ABOVE"]
             ]
         ]
 
@@ -181,6 +197,11 @@ final class AIService {
 
             let label = result["frictionLabel"] ?? "nil"
             print("[AIService] Success — frictionLabel: \(label)")
+
+            if label == "CONTENT_BLOCKED" {
+                print("[AIService] Content blocked by model")
+                throw AIServiceError.contentViolation
+            }
 
             return NudgeResult(
                 frictionLabel: result["frictionLabel"] ?? "Friction",
