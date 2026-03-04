@@ -416,7 +416,7 @@ struct SettingsView: View {
                 icon: "star.fill",
                 iconColor: Color(red: 0.95, green: 0.65, blue: 0.25),
                 label: lang["settings.about.rate"],
-                url: "https://apps.apple.com/app/idYOUR_APP_ID"
+                url: "https://apps.apple.com/app/id6760037466?action=write-review"
             )
 
             RowDivider()
