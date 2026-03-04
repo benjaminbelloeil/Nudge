@@ -6,6 +6,7 @@ import FoundationModels
 enum AppleIntelligenceError: Error {
     case notAvailable
     case generationFailed
+    case contentViolation
 }
 
 // MARK: - Generable Output (Apple Intelligence structured generation)
@@ -129,6 +130,10 @@ final class FallbackService {
                 )
             } catch {
                 print("[AppleIntelligence] Generation failed: \(error.localizedDescription)")
+                let desc = error.localizedDescription.lowercased()
+                if desc.contains("content") || desc.contains("policy") || desc.contains("filter") || desc.contains("safety") || desc.contains("restric") {
+                    throw AppleIntelligenceError.contentViolation
+                }
                 throw AppleIntelligenceError.generationFailed
             }
         }

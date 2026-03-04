@@ -92,6 +92,34 @@ final class SubscriptionManager: ObservableObject {
 
     // MARK: - Gating Logic
 
+    // Keys for the permanent weekly creation counter
+    private static let nudgeCreationCountKey  = "nudge.weeklyCreations.count"
+    private static let nudgeCreationWeekKey   = "nudge.weeklyCreations.weekStart"
+
+    /// How many nudges the user has CREATED this week (never decrements on delete).
+    func nudgesCreatedThisWeek() -> Int {
+        let calendar = Calendar.current
+        let now = Date()
+        guard let weekStart = calendar.dateInterval(of: .weekOfYear, for: now)?.start else { return 0 }
+        let defaults = UserDefaults.standard
+        if let storedWeekStart = defaults.object(forKey: Self.nudgeCreationWeekKey) as? Date,
+           calendar.isDate(storedWeekStart, inSameDayAs: weekStart) {
+            return defaults.integer(forKey: Self.nudgeCreationCountKey)
+        } else {
+            // New week — reset counter
+            defaults.set(weekStart, forKey: Self.nudgeCreationWeekKey)
+            defaults.set(0, forKey: Self.nudgeCreationCountKey)
+            return 0
+        }
+    }
+
+    /// Call once when a nudge is first saved. Increments the permanent counter.
+    func recordNudgeCreated() {
+        let current = nudgesCreatedThisWeek()
+        UserDefaults.standard.set(current + 1, forKey: Self.nudgeCreationCountKey)
+    }
+
+    /// Legacy helper kept for CustomerCenterView display (reflects live entries).
     func nudgesThisWeek() -> Int {
         let calendar = Calendar.current
         let now = Date()
@@ -101,11 +129,11 @@ final class SubscriptionManager: ObservableObject {
 
     func canCreateNudge() -> Bool {
         if isProUser { return true }
-        return nudgesThisWeek() < Self.freeNudgesPerWeek
+        return nudgesCreatedThisWeek() < Self.freeNudgesPerWeek
     }
 
     var remainingFreeNudges: Int {
-        max(0, Self.freeNudgesPerWeek - nudgesThisWeek())
+        max(0, Self.freeNudgesPerWeek - nudgesCreatedThisWeek())
     }
 }
 

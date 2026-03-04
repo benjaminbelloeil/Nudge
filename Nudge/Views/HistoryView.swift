@@ -51,7 +51,7 @@ struct HistoryView: View {
                             viewModel.filterMood = mood
                         } label: {
                             Label(
-                                "\(mood.emoji) \(mood.displayName)",
+                                "\(mood.emoji) \(languageManager["mood.\(mood.rawValue)"])",
                                 systemImage: viewModel.filterMood == mood ? "checkmark" : ""
                             )
                         }
@@ -322,11 +322,11 @@ private struct DetailHeader: View {
             HStack(spacing: 10) {
                 Text(entry.mood.emoji)
                     .font(.title3)
-                Text(entry.mood.displayName)
+                Text(languageManager["mood.\(entry.mood.rawValue)"])
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Text("·").foregroundStyle(.tertiary)
-                Text(entry.energy.displayName)
+                Text(languageManager["energy.name.\(entry.energy.rawValue)"])
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -548,8 +548,8 @@ private struct DetailInfoSection: View {
                             .locale(languageManager.locale)
                     )
                 )
-                InfoRow(label: languageManager["details.mood"], value: "\(entry.mood.emoji) \(entry.mood.displayName)")
-                InfoRow(label: languageManager["details.energy"], value: entry.energy.displayName)
+                InfoRow(label: languageManager["details.mood"], value: "\(entry.mood.emoji) \(languageManager["mood.\(entry.mood.rawValue)"])")
+                InfoRow(label: languageManager["details.energy"], value: languageManager["energy.name.\(entry.energy.rawValue)"])
                 InfoRow(
                     label: languageManager["details.source"],
                     value: entry.source == .ai

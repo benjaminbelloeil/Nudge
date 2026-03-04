@@ -28,7 +28,13 @@ struct NudgeApp: App {
             if newPhase == .active {
                 Task {
                     await SubscriptionManager.shared.refreshCustomerInfo()
-                    // Re-schedule notifications every time app becomes active (ensures they stay registered)
+                    // Sync toggle with real OS permission (handles user disabling in iOS Settings)
+                    let status = await NotificationManager.shared.authorizationStatus()
+                    let osGranted = (status == .authorized || status == .provisional)
+                    if notificationsEnabled && !osGranted {
+                        notificationsEnabled = false
+                    }
+                    // Re-schedule if still enabled
                     if notificationsEnabled {
                         await NotificationManager.shared.scheduleAll()
                     }
@@ -41,6 +47,7 @@ struct NudgeApp: App {
 struct AppRootView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("appearanceMode") private var appearanceMode = 0
+    @AppStorage("largeText") private var largeText = false
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var languageManager: LanguageManager
 
@@ -62,6 +69,7 @@ struct AppRootView: View {
                 })
             }
         }
+        .environment(\.sizeCategory, largeText ? .extraExtraLarge : .large)
         .animation(.easeInOut(duration: 0.4), value: hasCompletedOnboarding)
         .preferredColorScheme(colorScheme)
     }

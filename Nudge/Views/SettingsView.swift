@@ -11,7 +11,7 @@ struct SettingsView: View {
     @AppStorage("hapticsEnabled") private var hapticsEnabled = true
     @AppStorage("appearanceMode") private var appearanceMode = 0  // 0=system, 1=light, 2=dark
     @AppStorage("notificationsEnabled") private var notificationsEnabled = false
-    @AppStorage("nudgeStepCount") private var nudgeStepCount = 5
+    @AppStorage("largeText") private var largeText = false
     @State private var appeared = false
     @State private var showClearConfirm = false
     @State private var showTips = false
@@ -55,10 +55,10 @@ struct SettingsView: View {
                     .offset(y: appeared ? 0 : 12)
                     .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.17), value: appeared)
 
-                debugSection
-                    .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 12)
-                    .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.20), value: appeared)
+                // debugSection
+                //     .opacity(appeared ? 1 : 0)
+                //     .offset(y: appeared ? 0 : 12)
+                //     .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.20), value: appeared)
 
                 versionFooter
                     .opacity(appeared ? 1 : 0)
@@ -380,36 +380,20 @@ struct SettingsView: View {
 
             RowDivider()
 
-            // Step count
+            // Large Text toggle
             SectionRow {
                 HStack(spacing: 14) {
-                    RowIcon(name: "slider.horizontal.3", color: Color(red: 0.25, green: 0.60, blue: 0.95))
+                    RowIcon(name: "textformat.size.larger", color: Color(red: 0.25, green: 0.55, blue: 0.95))
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(lang["settings.preferences.step_count"])
+                        Text(lang["settings.preferences.auto_expand"])
                             .font(.subheadline).fontWeight(.medium)
-                        Text(lang["settings.preferences.step_count_sub"])
+                        Text(lang["settings.preferences.auto_expand_sub"])
                             .font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    HStack(spacing: 2) {
-                        ForEach([2, 3, 5], id: \.self) { count in
-                            Button {
-                                withAnimation(.easeInOut(duration: 0.18)) { nudgeStepCount = count }
-                                HapticManager.selection()
-                            } label: {
-                                Text("\(count)")
-                                    .font(.system(size: 13, weight: nudgeStepCount == count ? .bold : .regular))
-                                    .frame(width: 32, height: 28)
-                                    .background(nudgeStepCount == count ? Color.accentColor : Color.clear)
-                                    .foregroundColor(nudgeStepCount == count ? .white : .secondary)
-                                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(3)
-                    .background(AppColors.elevatedCard)
-                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                    Toggle("", isOn: $largeText)
+                        .labelsHidden()
+                        .tint(.accentColor)
                 }
             }
         }
@@ -441,7 +425,7 @@ struct SettingsView: View {
                 icon: "hand.raised.fill",
                 iconColor: Color(red: 0.35, green: 0.80, blue: 0.55),
                 label: lang["settings.about.privacy"],
-                url: "https://yourwebsite.com/privacy"
+                url: "https://yourwebsite.com/privacy" // TODO: replace with real URL
             )
 
             RowDivider()
@@ -450,15 +434,15 @@ struct SettingsView: View {
                 icon: "doc.text.fill",
                 iconColor: Color(red: 0.20, green: 0.55, blue: 0.95),
                 label: lang["settings.about.terms"],
-                url: "https://yourwebsite.com/terms"
+                url: "https://yourwebsite.com/terms" // TODO: replace with real URL
             )
         }
     }
 
     // MARK: - Data Section
 
-    // MARK: - Debug Section
-
+    // MARK: - Debug Section (disabled for release)
+    /*
     private var debugSection: some View {
         SectionGroup(title: "DEBUG") {
             SectionTapRow(
@@ -498,6 +482,7 @@ struct SettingsView: View {
             )
         }
     }
+    */
 
     private var dataSection: some View {
         SectionGroup(title: lang["settings.data.section"]) {

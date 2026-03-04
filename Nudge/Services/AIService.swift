@@ -29,21 +29,41 @@ final class AIService {
 
     // MARK: - Dynamic System Prompt
 
-    private static func systemInstruction(for count: Int) -> String {
+    private static func systemInstruction(for count: Int, languageCode: String = "en") -> String {
+        let languageDirective: String
+        switch languageCode {
+        case "es": languageDirective = "\n\nCRITICAL LANGUAGE RULE: Write ALL output entirely in Spanish. Every word of step titles, step actions, frictionLabel, ifStuck, and successDefinition MUST be in Spanish. No English words."
+        case "fr": languageDirective = "\n\nCRITICAL LANGUAGE RULE: Write ALL output entirely in French. Every word of step titles, step actions, frictionLabel, ifStuck, and successDefinition MUST be in French. No English words."
+        default: languageDirective = ""
+        }
         let stepBlock: String
         switch count {
-        case 2:
+        case 4:
             stepBlock = """
-            2 steps:
-            1 (Jump In): Smallest concrete action, visible output.
-            2 (Close Out): Save progress, note next action.
-            """
-        case 3:
-            stepBlock = """
-            3 steps:
+            4 steps:
             1 (Set Up): Remove barriers to starting.
             2 (Micro-Start): Smallest action, under 90s, visible output.
-            3 (Close Out): Save progress, note next action.
+            3 (Build & Push): Continue from step 2, add one more concrete piece.
+            4 (Close Out): Save progress, note next action.
+            """
+        case 5:
+            stepBlock = """
+            5 steps:
+            1 (Set Up): Remove barriers to starting.
+            2 (Micro-Start): Smallest action, under 90s, visible output.
+            3 (Build): Continue from step 2, do more.
+            4 (Push): Go further, add one more piece of work.
+            5 (Close Out): Save progress, note next action.
+            """
+        case 6:
+            stepBlock = """
+            6 steps:
+            1 (Set Up): Remove barriers to starting.
+            2 (Micro-Start): Smallest action, under 90s, visible output.
+            3 (Build): Continue from step 2, do more.
+            4 (Push): Go further, add one more piece of work.
+            5 (Finish): Tie up loose ends on this task.
+            6 (Close Out): Save progress, note next action.
             """
         default:
             stepBlock = """
@@ -56,7 +76,7 @@ final class AIService {
             """
         }
         return """
-        You are Nudge, a productivity assistant that breaks procrastination into \(count) tiny progressive micro-steps.
+        You are Nudge, a productivity assistant that breaks procrastination into \(count) tiny progressive micro-steps.\(languageDirective)
 
         CONTENT MODERATION (check FIRST):
         If the task contains profanity, slurs, sexual content, violence, self-harm, threats, illegal activity, or hate speech, return ONLY: {"frictionLabel":"CONTENT_BLOCKED"}
@@ -72,10 +92,8 @@ final class AIService {
     // MARK: - Generate with Model Fallback
 
     func generateNudge(task: String, energy: EnergyLevel, mood: Mood) async throws -> NudgeResult {
-        let stored = UserDefaults.standard.integer(forKey: "nudgeStepCount")
-        let stepCount = (stored == 0) ? 5 : stored
-
-        let jsonStepKeys = (1...stepCount)
+        let languageCode = LanguageManager.shared.language.rawValue
+        let jsonStepKeys = (1...5)
             .map { "\"step\($0)Title\":\"2-4 words\",\"step\($0)Action\":\"one sentence\"" }
             .joined(separator: ",")
 
@@ -90,12 +108,12 @@ final class AIService {
         {"frictionLabel":"max 3 words",\(jsonStepKeys),"ifStuck":"under 10 words","successDefinition":"under 15 words, tangible result"}
         """
 
-        let sysInstruction = Self.systemInstruction(for: stepCount)
+        let sysInstruction = Self.systemInstruction(for: 5, languageCode: languageCode)
         var lastError: Error = AIServiceError.networkError("Unknown")
 
         for model in Self.models {
             do {
-                let result = try await callModel(model, prompt: prompt, systemInstruction: sysInstruction, stepCount: stepCount)
+                let result = try await callModel(model, prompt: prompt, systemInstruction: sysInstruction, stepCount: 5)
                 return result
             } catch AIServiceError.rateLimited {
                 print("[AIService] \(model) rate limited — trying next model")

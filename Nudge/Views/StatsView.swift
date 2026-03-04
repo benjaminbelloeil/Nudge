@@ -244,7 +244,7 @@ struct StatsView: View {
                     Text(item.mood.emoji)
                         .font(.body)
 
-                    Text(item.mood.displayName)
+                    Text(languageManager["mood.\(item.mood.rawValue)"])
                         .font(.subheadline)
                         .frame(width: 90, alignment: .leading)
 

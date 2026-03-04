@@ -90,6 +90,8 @@ struct MoodChip: View {
     let isSelected: Bool
     let action: () -> Void
 
+    @EnvironmentObject var languageManager: LanguageManager
+
     var body: some View {
         Button {
             HapticManager.selection()
@@ -98,7 +100,7 @@ struct MoodChip: View {
             HStack(spacing: 10) {
                 Text(mood.emoji)
                     .font(.title3)
-                Text(mood.displayName)
+                Text(languageManager["mood.\(mood.rawValue)"])
                     .font(.body)
                     .fontWeight(isSelected ? .semibold : .regular)
                     .lineLimit(1)
@@ -118,7 +120,7 @@ struct MoodChip: View {
         .buttonStyle(.plain)
         .scaleEffect(isSelected ? 1.02 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
-        .accessibilityLabel("\(mood.displayName) mood")
+        .accessibilityLabel("\(languageManager["mood.\(mood.rawValue)"]) mood")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
@@ -129,6 +131,8 @@ struct EnergyDot: View {
     let level: EnergyLevel
     let isActive: Bool
     let action: () -> Void
+
+    @EnvironmentObject var languageManager: LanguageManager
 
     var body: some View {
         Button {
@@ -146,7 +150,7 @@ struct EnergyDot: View {
                             .foregroundStyle(isActive ? .white : .secondary)
                     )
 
-                Text(level.displayName)
+                Text(languageManager["energy.name.\(level.rawValue)"])
                     .font(.caption2)
                     .fontWeight(isActive ? .medium : .regular)
                     .foregroundStyle(isActive ? .primary : .secondary)
@@ -155,7 +159,7 @@ struct EnergyDot: View {
         .buttonStyle(.plain)
         .scaleEffect(isActive ? 1.05 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isActive)
-        .accessibilityLabel("Energy level \(level.displayName)")
+        .accessibilityLabel("Energy level \(languageManager["energy.name.\(level.rawValue)"])")
         .accessibilityAddTraits(isActive ? .isSelected : [])
     }
 }

@@ -134,8 +134,7 @@ struct CustomerCenterView: View {
             let isYearly = productID.lowercased().contains("year") || productID.lowercased().contains("annual")
             let planName = isYearly ? "Annual Plan" : "Monthly Plan"
             let renewalPeriod = isYearly ? "Annually" : "Monthly"
-            let nudgesThisWeek = PersistenceManager.shared.entries
-                .filter { Calendar.current.dateInterval(of: .weekOfYear, for: Date())?.contains($0.createdAt) == true }.count
+            let nudgesThisWeek = SubscriptionManager.shared.nudgesCreatedThisWeek()
 
             VStack(spacing: 0) {
                 // Header

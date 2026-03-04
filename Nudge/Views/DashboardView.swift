@@ -66,11 +66,11 @@ struct DashboardView: View {
                 .tracking(1.5)
 
             HStack(spacing: 0) {
-                Text("BREAK\n")
+                Text(lang["dashboard.header_line1"] + "\n")
                     .foregroundColor(.primary)
-                + Text("THROUGH")
+                + Text(lang["dashboard.header_line2"])
                     .foregroundColor(.accentColor)
-                + Text("\nFRICTION")
+                + Text("\n" + lang["dashboard.header_line3"])
                     .foregroundColor(.primary)
             }
             .font(.system(size: 36, weight: .black).width(.expanded))

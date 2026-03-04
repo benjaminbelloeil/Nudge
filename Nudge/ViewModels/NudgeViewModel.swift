@@ -19,6 +19,7 @@ final class NudgeViewModel: ObservableObject {
     @Published var aiAvailable: Bool = false
     @Published var contentWarning: String? = nil
     @Published var isManualMode: Bool = false
+    @Published var isAIFallbackToManual: Bool = false
     @Published var manualMissions: [String] = Array(repeating: "", count: 5)
 
     private let persistence: PersistenceManager
@@ -79,7 +80,9 @@ final class NudgeViewModel: ObservableObject {
             completedStepIds = []
             isGoingForward = true
             isManualMode = false
+            isAIFallbackToManual = false
             manualMissions = Array(repeating: "", count: 5)
+            selectedEnergy = .medium
         }
     }
 
@@ -139,7 +142,7 @@ final class NudgeViewModel: ObservableObject {
             print("[NudgeVM] Tier 1 skipped: Gemini requires Pro")
         }
 
-        // TIER 2: Apple Intelligence (on-device)
+        // TIER 2: Apple Intelligence (on-device) — fall back to manual if unavailable or fails
         if FallbackService.isAvailable {
             do {
                 currentResult = try await fallbackService.generateNudge(
@@ -149,6 +152,17 @@ final class NudgeViewModel: ObservableObject {
                 isGenerating = false
                 print("[NudgeVM] Tier 2 success: Apple Intelligence")
                 return
+            } catch AppleIntelligenceError.contentViolation {
+                contentWarning = "Sorry, your input can't be used. Please remove any inappropriate words and try again."
+                isGenerating = false
+                currentResult = NudgeResult(
+                    frictionLabel: "Error",
+                    steps: [NudgeStep(id: 1, title: "Error", action: "No steps available.")],
+                    ifStuck: "",
+                    successDefinition: ""
+                )
+                currentSource = .appleIntelligence
+                return
             } catch {
                 print("[NudgeVM] Tier 2 failed (Apple Intelligence): \(error)")
             }
@@ -156,10 +170,10 @@ final class NudgeViewModel: ObservableObject {
             print("[NudgeVM] Tier 2 skipped: Apple Intelligence not available")
         }
 
-        // TIER 3: Template fallback — always give the user something actionable
-        print("[NudgeVM] Tier 3: Template fallback")
-        currentResult = generateTemplateFallback(task: taskText, energy: selectedEnergy, mood: mood)
-        currentSource = .fallback
+        // No AI path succeeded — route to manual input
+        print("[NudgeVM] No AI available, routing to manual mode")
+        isAIFallbackToManual = true
+        isManualMode = true
         isGenerating = false
     }
 
@@ -214,6 +228,7 @@ final class NudgeViewModel: ObservableObject {
             isCompleted: allDone, completedAt: allDone ? Date() : nil,
             source: currentSource, completedStepIds: completedStepIds
         ))
+        subscriptionManager.recordNudgeCreated()
     }
 
     func markComplete() {
@@ -225,6 +240,7 @@ final class NudgeViewModel: ObservableObject {
             isCompleted: allDone, completedAt: allDone ? Date() : nil,
             source: currentSource, completedStepIds: completedStepIds
         ))
+        subscriptionManager.recordNudgeCreated()
         // User completed a nudge today — cancel any "streak at risk" warning for today
         NotificationManager.shared.cancelStreakRisk()
         reset()
