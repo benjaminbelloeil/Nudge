@@ -36,10 +36,18 @@ final class SubscriptionManager: ObservableObject {
 
     func configure() {
         let key = Self.apiKey
+        #if !DEBUG
+        // RevenueCat hard-crashes Release builds if a test_ key is used — skip gracefully
+        guard !key.isEmpty && !key.hasPrefix("test_") else {
+            isLoading = false
+            return
+        }
+        #else
         guard !key.isEmpty else {
             isLoading = false
             return
         }
+        #endif
         #if DEBUG
         Purchases.logLevel = .debug
         #else
