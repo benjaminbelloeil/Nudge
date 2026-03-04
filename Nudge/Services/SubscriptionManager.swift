@@ -33,6 +33,8 @@ final class SubscriptionManager: ObservableObject {
 
     // MARK: - Init
 
+    private(set) var isConfigured = false
+
     private init() {}
 
     // MARK: - Configure
@@ -50,6 +52,7 @@ final class SubscriptionManager: ObservableObject {
         #endif
         Purchases.configure(withAPIKey: key)
         Purchases.shared.delegate = RevenueCatDelegate.shared
+        isConfigured = true
 
         Task {
             await refreshCustomerInfo()
@@ -61,6 +64,7 @@ final class SubscriptionManager: ObservableObject {
     // MARK: - Refresh
 
     func refreshCustomerInfo() async {
+        guard isConfigured else { return }
         do {
             let info = try await Purchases.shared.customerInfo()
             self.customerInfo = info
@@ -73,6 +77,7 @@ final class SubscriptionManager: ObservableObject {
     // MARK: - Fetch Offerings
 
     func fetchOfferings() async {
+        guard isConfigured else { return }
         do {
             self.offerings = try await Purchases.shared.offerings()
         } catch {
@@ -83,6 +88,7 @@ final class SubscriptionManager: ObservableObject {
     // MARK: - Purchase
 
     func purchase(package: Package) async throws -> Bool {
+        guard isConfigured else { throw NSError(domain: "SubscriptionManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Subscriptions unavailable"]) }
         let result = try await Purchases.shared.purchase(package: package)
         self.customerInfo = result.customerInfo
         self.isProUser = result.customerInfo.entitlements[Self.entitlementID]?.isActive == true
@@ -92,6 +98,7 @@ final class SubscriptionManager: ObservableObject {
     // MARK: - Restore
 
     func restorePurchases() async throws {
+        guard isConfigured else { throw NSError(domain: "SubscriptionManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Subscriptions unavailable"]) }
         let info = try await Purchases.shared.restorePurchases()
         self.customerInfo = info
         self.isProUser = info.entitlements[Self.entitlementID]?.isActive == true
