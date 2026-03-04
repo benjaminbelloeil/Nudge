@@ -1,5 +1,6 @@
 import SwiftUI
 import StoreKit
+import UserNotifications
 
 struct SettingsView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
@@ -53,6 +54,11 @@ struct SettingsView: View {
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 12)
                     .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.17), value: appeared)
+
+                debugSection
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 12)
+                    .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.20), value: appeared)
 
                 versionFooter
                     .opacity(appeared ? 1 : 0)
@@ -450,6 +456,48 @@ struct SettingsView: View {
     }
 
     // MARK: - Data Section
+
+    // MARK: - Debug Section
+
+    private var debugSection: some View {
+        SectionGroup(title: "DEBUG") {
+            SectionTapRow(
+                icon: "bell.badge.fill",
+                iconColor: Color(red: 0.95, green: 0.45, blue: 0.25),
+                label: "Send Test Notification (5s)",
+                action: {
+                    Task {
+                        let content = UNMutableNotificationContent()
+                        content.title = "Time to make progress"
+                        content.body = "What's one thing you can do right now?"
+                        content.sound = .default
+                        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+                        let request = UNNotificationRequest(identifier: "nudge.test", content: content, trigger: trigger)
+                        try? await UNUserNotificationCenter.current().add(request)
+                    }
+                    // Background the app within 5 seconds to see the banner
+                }
+            )
+
+            RowDivider()
+
+            SectionTapRow(
+                icon: "list.bullet",
+                iconColor: Color(red: 0.40, green: 0.65, blue: 0.95),
+                label: "Print Pending Notifications",
+                action: {
+                    Task {
+                        let pending = await UNUserNotificationCenter.current().pendingNotificationRequests()
+                        if pending.isEmpty {
+                            print("[Notifications] No pending notifications scheduled")
+                        } else {
+                            pending.forEach { print("[Notifications]", $0.identifier, $0.trigger ?? "no trigger") }
+                        }
+                    }
+                }
+            )
+        }
+    }
 
     private var dataSection: some View {
         SectionGroup(title: lang["settings.data.section"]) {
