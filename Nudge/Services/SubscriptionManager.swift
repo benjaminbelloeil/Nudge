@@ -20,8 +20,8 @@ final class SubscriptionManager: ObservableObject {
     }
 
     static let entitlementID = "Nudge Pro"
-    static let monthlyProductID = "monthly"
-    static let yearlyProductID = "yearly"
+    static let monthlyProductID = "com.BenjaminBelloeil.Nudge.monthly"
+    static let yearlyProductID = "com.BenjaminBelloeil.Nudge.yearly"
 
     // Free tier limit
     static let freeNudgesPerWeek = 2
