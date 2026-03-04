@@ -22,18 +22,12 @@ final class AIService {
 
     // Worker proxy URL — key lives in Cloudflare, not in the app bundle
     private static var workerURL: String {
-        guard let url = Bundle.main.infoDictionary?["GEMINI_WORKER_URL"] as? String, !url.isEmpty else {
-            fatalError("Missing GEMINI_WORKER_URL in Info.plist")
-        }
-        return url
+        return (Bundle.main.infoDictionary?["GEMINI_WORKER_URL"] as? String) ?? ""
     }
 
     // Shared secret — authorises the app to use the Worker (not the Gemini key itself)
     private static var appToken: String {
-        guard let token = Bundle.main.infoDictionary?["GEMINI_APP_TOKEN"] as? String, !token.isEmpty else {
-            fatalError("Missing GEMINI_APP_TOKEN in Info.plist")
-        }
-        return token
+        return (Bundle.main.infoDictionary?["GEMINI_APP_TOKEN"] as? String) ?? ""
     }
 
     // MARK: - Dynamic System Prompt

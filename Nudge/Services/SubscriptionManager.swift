@@ -16,10 +16,12 @@ final class SubscriptionManager: ObservableObject {
     // MARK: - Constants
 
     static var apiKey: String {
-        guard let key = Bundle.main.infoDictionary?["REVENUECAT_API_KEY"] as? String, !key.isEmpty else {
-            fatalError("Missing REVENUECAT_API_KEY in Info.plist")
+        if let key = Bundle.main.infoDictionary?["REVENUECAT_API_KEY"] as? String, !key.isEmpty {
+            return key
         }
-        return key
+        // Fallback: return empty string so app doesn't crash — subscriptions will be unavailable
+        assertionFailure("Missing REVENUECAT_API_KEY in Info.plist")
+        return ""
     }
 
     static let entitlementID = "Nudge Pro"
@@ -36,12 +38,17 @@ final class SubscriptionManager: ObservableObject {
     // MARK: - Configure
 
     func configure() {
+        let key = Self.apiKey
+        guard !key.isEmpty else {
+            isLoading = false
+            return
+        }
         #if DEBUG
         Purchases.logLevel = .debug
         #else
         Purchases.logLevel = .error
         #endif
-        Purchases.configure(withAPIKey: Self.apiKey)
+        Purchases.configure(withAPIKey: key)
         Purchases.shared.delegate = RevenueCatDelegate.shared
 
         Task {
