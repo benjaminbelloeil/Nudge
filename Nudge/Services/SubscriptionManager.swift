@@ -16,12 +16,7 @@ final class SubscriptionManager: ObservableObject {
     // MARK: - Constants
 
     static var apiKey: String {
-        if let key = Bundle.main.infoDictionary?["REVENUECAT_API_KEY"] as? String, !key.isEmpty {
-            return key
-        }
-        // Fallback: return empty string so app doesn't crash — subscriptions will be unavailable
-        assertionFailure("Missing REVENUECAT_API_KEY in Info.plist")
-        return ""
+        return (Bundle.main.infoDictionary?["REVENUECAT_API_KEY"] as? String) ?? ""
     }
 
     static let entitlementID = "Nudge Pro"
