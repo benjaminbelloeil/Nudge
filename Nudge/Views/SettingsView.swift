@@ -425,7 +425,7 @@ struct SettingsView: View {
                 icon: "hand.raised.fill",
                 iconColor: Color(red: 0.35, green: 0.80, blue: 0.55),
                 label: lang["settings.about.privacy"],
-                url: "https://yourwebsite.com/privacy" // TODO: replace with real URL
+                url: "https://benjaminbelloeil.github.io/Nudge/privacy.html"
             )
 
             RowDivider()
@@ -434,7 +434,7 @@ struct SettingsView: View {
                 icon: "doc.text.fill",
                 iconColor: Color(red: 0.20, green: 0.55, blue: 0.95),
                 label: lang["settings.about.terms"],
-                url: "https://yourwebsite.com/terms" // TODO: replace with real URL
+                url: "https://benjaminbelloeil.github.io/Nudge/terms.html"
             )
         }
     }

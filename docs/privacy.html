@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Nudge</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #1c1c1f;
+      --surface:   #26262b;
+      --border:    rgba(255,255,255,0.07);
+      --accent:    #8b5cf6;
+      --accent2:   #3b82f6;
+      --text:      #e8e8ed;
+      --muted:     #8e8e93;
+      --radius:    14px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      padding: 0 20px 80px;
+    }
+
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* ── Nav ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 48px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 56px;
+    }
+
+    .wordmark {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .wordmark span { color: var(--accent); }
+
+    nav a.pill {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    nav a.pill:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+    /* ── Hero ── */
+    .hero {
+      margin-bottom: 56px;
+    }
+
+    .hero .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 6vw, 52px);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.08;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 em { color: var(--accent); font-style: normal; }
+
+    .hero .meta {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* ── Summary card ── */
+    .summary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin-bottom: 56px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .summary strong { color: var(--text); }
+
+    /* ── Sections ── */
+    section {
+      margin-bottom: 48px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h2 .num {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+
+    p { color: var(--muted); margin-bottom: 14px; }
+    p:last-child { margin-bottom: 0; }
+    p strong { color: var(--text); }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    ul li {
+      padding: 7px 0 7px 20px;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+
+    ul li:last-child { border-bottom: none; }
+
+    ul li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 12px;
+      top: 9px;
+    }
+
+    ul li strong { color: var(--text); }
+
+    /* ── Highlight box ── */
+    .box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      margin: 20px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 80px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    footer a:hover { color: var(--text); }
+
+    .footer-links { display: flex; gap: 20px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <a class="wordmark" href="index.html">NUDGE<span>.</span></a>
+    <a class="pill" href="terms.html">Terms of Use →</a>
+  </nav>
+
+  <div class="hero">
+    <p class="eyebrow">Legal</p>
+    <h1>Privacy <em>Policy</em></h1>
+    <p class="meta">Effective date: March 4, 2026 &nbsp;·&nbsp; Last updated: March 4, 2026</p>
+  </div>
+
+  <div class="summary">
+    <strong>Short version:</strong> Nudge stores your data locally on your device. If you use the AI feature, your task description is sent to Google's Gemini API to generate action steps — no name, email, or account is ever required. We collect nothing else, sell nothing, and track nothing.
+  </div>
+
+  <section>
+    <h2><span class="num">01</span> Who We Are</h2>
+    <p>Nudge is an iOS application developed by <strong>Benjamin Belloeil</strong> ("we", "us", "our"). It is designed to help users overcome procrastination through AI-generated micro-steps.</p>
+    <p>Contact: <strong>nudge-app@icloud.com</strong> (replace with your actual address before publishing)</p>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span> What Data We Collect</h2>
+    <p>Nudge does <strong>not</strong> require you to create an account. We collect only the minimum necessary for the app to function.</p>
+    <ul>
+      <li><strong>Task descriptions, mood, and energy level</strong> — entered by you when creating a Nudge. Stored locally on your device (and optionally in your iCloud account if enabled).</li>
+      <li><strong>Nudge history</strong> — a local JSON file containing your completed and in-progress nudges, step completion status, timestamps, and mood/energy data.</li>
+      <li><strong>App preferences</strong> — language, appearance, haptic, and notification settings stored in UserDefaults on your device.</li>
+      <li><strong>Subscription status</strong> — managed entirely by Apple's App Store and RevenueCat. We receive only an anonymous purchase token; no payment details ever reach us.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span> AI Features &amp; Third‑Party Services</h2>
+    <p>When you generate a Nudge using the AI feature, your <strong>task description, mood, and energy level</strong> are sent to Google's Gemini API to produce personalised action steps. No name, email, device identifier, or location is included in these requests.</p>
+
+    <div class="box">
+      <strong>Google Gemini API</strong><br />
+      Your task text is transmitted to Google's servers solely to generate your action plan. Google's use of this data is governed by the <a href="https://policies.google.com/privacy" style="color:var(--accent);">Google Privacy Policy</a> and the Gemini API Terms of Service. We do not store or log the content of API requests.
+    </div>
+
+    <p>If you are using a device with <strong>Apple Intelligence</strong>, Nudge may use on-device AI as a fallback. In that case, no data leaves your device.</p>
+    <p>If AI is unavailable, you can create steps manually — no data is sent anywhere.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">04</span> iCloud Sync</h2>
+    <p>If iCloud is enabled on your device, your Nudge history file may be synced to your personal iCloud account via Apple's CloudKit. This data is governed by <a href="https://www.apple.com/legal/privacy/" style="color:var(--accent);">Apple's Privacy Policy</a>. We cannot access your iCloud data.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">05</span> Notifications</h2>
+    <p>If you enable notifications, Nudge schedules local reminder notifications on your device. These are generated entirely on-device and do not involve any server. You can disable them at any time in the app Settings or in iOS Settings.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">06</span> Analytics &amp; Advertising</h2>
+    <p>Nudge contains <strong>no third-party analytics SDKs, no advertising networks, and no crash reporting services</strong> beyond what Apple provides by default through the App Store (opt-in). We do not build profiles, sell data, or share data with any third party for marketing purposes.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">07</span> Children's Privacy</h2>
+    <p>Nudge is not directed at children under the age of 13. We do not knowingly collect personal information from children. If you believe a child has provided us with personal data, please contact us and we will delete it.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">08</span> Data Retention &amp; Deletion</h2>
+    <p>All your data lives on <strong>your device</strong>. You can delete all Nudge history at any time via <strong>Settings → Clear All Data</strong> inside the app. Uninstalling the app removes all locally stored data. iCloud copies can be deleted through your iCloud account settings.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">09</span> Your Rights</h2>
+    <p>Because we do not maintain a server-side database of your personal data, there is nothing for us to provide, correct, or delete on our end. All data is under your direct control on your device. For any questions, contact us at the address in Section 1.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">10</span> Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. The updated version will be posted at this URL with a revised effective date. Continued use of the app after changes constitutes acceptance of the new policy.</p>
+  </section>
+
+  <footer>
+    <a class="wordmark" href="index.html">NUDGE<span style="color:var(--accent)">.</span></a>
+    <div class="footer-links">
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Use</a>
+    </div>
+    <span>© 2026 Benjamin Belloeil</span>
+  </footer>
+
+</div>
+</body>
+</html>
