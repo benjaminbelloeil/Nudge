@@ -20,11 +20,20 @@ final class AIService {
         "gemini-2.5-flash"
     ]
 
-    private static var apiKey: String {
-        guard let key = Bundle.main.infoDictionary?["GEMINI_API_KEY"] as? String, !key.isEmpty else {
-            fatalError("Missing GEMINI_API_KEY in Info.plist")
+    // Worker proxy URL — key lives in Cloudflare, not in the app bundle
+    private static var workerURL: String {
+        guard let url = Bundle.main.infoDictionary?["GEMINI_WORKER_URL"] as? String, !url.isEmpty else {
+            fatalError("Missing GEMINI_WORKER_URL in Info.plist")
         }
-        return key
+        return url
+    }
+
+    // Shared secret — authorises the app to use the Worker (not the Gemini key itself)
+    private static var appToken: String {
+        guard let token = Bundle.main.infoDictionary?["GEMINI_APP_TOKEN"] as? String, !token.isEmpty else {
+            fatalError("Missing GEMINI_APP_TOKEN in Info.plist")
+        }
+        return token
     }
 
     // MARK: - Dynamic System Prompt
@@ -135,7 +144,7 @@ final class AIService {
     // MARK: - Single Model Call (with retries)
 
     private func callModel(_ model: String, prompt: String, systemInstruction: String, stepCount: Int) async throws -> NudgeResult {
-        guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent") else {
+        guard let url = URL(string: "\(Self.workerURL)/v1beta/models/\(model):generateContent") else {
             throw AIServiceError.networkError("Invalid URL")
         }
 
@@ -159,7 +168,7 @@ final class AIService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(Self.apiKey, forHTTPHeaderField: "x-goog-api-key")
+        request.setValue(Self.appToken, forHTTPHeaderField: "X-App-Token")
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
         request.timeoutInterval = 25
 
