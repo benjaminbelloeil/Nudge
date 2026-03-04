@@ -4,6 +4,9 @@ struct ManualMissionsView: View {
     @ObservedObject var viewModel: NudgeViewModel
     @FocusState private var focusedField: Int?
 
+    @EnvironmentObject var languageManager: LanguageManager
+    private var lang: (String) -> String { { key in languageManager[key] } }
+
     var body: some View {
         ZStack {
             AppColors.background.ignoresSafeArea()
@@ -21,11 +24,11 @@ struct ManualMissionsView: View {
                             .foregroundColor(.accentColor)
                     }
 
-                    Text("Create Your Missions")
+                    Text(lang("manual.title"))
                         .font(.title3)
                         .fontWeight(.bold)
 
-                    Text("Both AI models are unavailable right now.\nBreak your task into 5 small missions instead.")
+                    Text(lang("manual.subtitle"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -49,6 +52,7 @@ struct ManualMissionsView: View {
                         ForEach(0..<5, id: \.self) { index in
                             MissionField(
                                 index: index,
+                                missionLabel: lang("manual.mission_label"),
                                 text: $viewModel.manualMissions[index],
                                 isFocused: focusedField == index,
                                 onTap: { focusedField = index }
@@ -63,10 +67,11 @@ struct ManualMissionsView: View {
                 // Bottom button
                 VStack(spacing: 8) {
                     Button {
+                        HapticManager.medium()
                         focusedField = nil
                         viewModel.submitManualMissions()
                     } label: {
-                        Text("Create Plan")
+                        Text(lang("manual.create"))
                             .font(.headline)
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity)
@@ -77,7 +82,7 @@ struct ManualMissionsView: View {
                     }
                     .disabled(!viewModel.canSubmitManualMissions)
 
-                    Text("\(filledCount)/5 missions filled")
+                    Text("\(filledCount)\(lang("manual.filled_format"))")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .padding(.bottom, 4)
@@ -110,6 +115,7 @@ struct ManualMissionsView: View {
 
 private struct MissionField: View {
     let index: Int
+    let missionLabel: String
     @Binding var text: String
     let isFocused: Bool
     let onTap: () -> Void
@@ -135,7 +141,7 @@ private struct MissionField: View {
                         .foregroundColor(text.isEmpty ? .secondary : .white)
                 }
 
-                Text("Mission \(index + 1)")
+                Text("\(missionLabel) \(index + 1)")
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(text.isEmpty ? .secondary : .primary)

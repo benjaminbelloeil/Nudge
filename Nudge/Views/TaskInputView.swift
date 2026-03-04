@@ -5,6 +5,9 @@ struct TaskInputView: View {
     let canAdvance: Bool
     let onNext: () -> Void
 
+    @EnvironmentObject var languageManager: LanguageManager
+    private var lang: (String) -> String { { key in languageManager[key] } }
+
     @FocusState private var isFocused: Bool
 
     var body: some View {
@@ -19,17 +22,17 @@ struct TaskInputView: View {
 
                         // Title
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Step 1")
+                            Text(lang("flow.step1_label"))
                                 .font(.caption)
                                 .fontWeight(.bold)
                                 .foregroundColor(.accentColor)
                                 .tracking(1)
-                            Text("What are you\nputting off?")
+                            Text(lang("flow.task_title"))
                                 .font(.system(size: 26, weight: .bold))
                                 .lineSpacing(2)
                         }
 
-                        Text("Describe the task you keep avoiding.")
+                        Text(lang("flow.task_subtitle"))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
 
@@ -42,7 +45,7 @@ struct TaskInputView: View {
                                 .focused($isFocused)
 
                             if taskText.isEmpty {
-                                Text("e.g., Start writing my essay, clean up the kitchen...")
+                                Text(lang("flow.task_placeholder"))
                                     .foregroundStyle(.tertiary)
                                     .padding(.top, 12)
                                     .padding(.leading, 8)
@@ -59,7 +62,7 @@ struct TaskInputView: View {
                         .animation(.easeOut(duration: 0.15), value: isFocused)
 
                         if taskText.count > 200 {
-                            Text("Try to keep it concise")
+                            Text(lang("flow.task_too_long"))
                                 .font(.caption)
                                 .foregroundStyle(.orange)
                         }
@@ -73,13 +76,14 @@ struct TaskInputView: View {
 
                 // Bottom button
                 Button {
+                    HapticManager.light()
                     // Dismiss keyboard first, then advance after a short delay
                     isFocused = false
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                         onNext()
                     }
                 } label: {
-                    Text("Next")
+                    Text(lang("flow.next"))
                         .font(.headline)
                         .fontWeight(.bold)
                         .frame(maxWidth: .infinity)
@@ -96,3 +100,4 @@ struct TaskInputView: View {
         }
     }
 }
+

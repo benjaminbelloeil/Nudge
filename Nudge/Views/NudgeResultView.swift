@@ -6,6 +6,9 @@ struct NudgeResultView: View {
     @ObservedObject var viewModel: NudgeViewModel
     var onDismiss: (() -> Void)? = nil
 
+    @EnvironmentObject var languageManager: LanguageManager
+    private var lang: (String) -> String { { key in languageManager[key] } }
+
     @State private var cardsAppeared = false
     @State private var showSteps = true
     @State private var showGoal = false
@@ -43,7 +46,7 @@ struct NudgeResultView: View {
                     .opacity(errorAppeared ? 1 : 0)
 
                 VStack(spacing: 10) {
-                    Text("Something went wrong")
+                    Text(lang("result.error_title"))
                         .font(.title3)
                         .fontWeight(.bold)
 
@@ -58,6 +61,7 @@ struct NudgeResultView: View {
                 .offset(y: errorAppeared ? 0 : 8)
 
                 Button {
+                    HapticManager.warning()
                     withAnimation(.easeInOut(duration: 0.3)) {
                         viewModel.reset()
                     }
@@ -65,7 +69,7 @@ struct NudgeResultView: View {
                         onDismiss?()
                     }
                 } label: {
-                    Text("Start Over")
+                    Text(lang("result.start_over"))
                         .font(.headline)
                         .fontWeight(.bold)
                         .frame(maxWidth: .infinity)
@@ -136,7 +140,7 @@ struct NudgeResultView: View {
                 }
             }
 
-            Text("Your Action Plan")
+            Text(lang("result.action_plan"))
                 .font(.title2)
                 .fontWeight(.bold)
 
@@ -158,7 +162,7 @@ struct NudgeResultView: View {
     private var progressSection: some View {
         HorizontalTimerBar(
             progress: progressFraction,
-            label: "\(viewModel.completedStepCount) of \(viewModel.totalStepCount) steps"
+            label: "\(viewModel.completedStepCount) \(lang("common.of")) \(viewModel.totalStepCount) \(lang("common.steps"))"
         )
         .padding(.horizontal, 20)
         .padding(.bottom, 20)
@@ -191,7 +195,7 @@ struct NudgeResultView: View {
                             .foregroundColor(.accentColor)
                     }
 
-                    Text("Steps")
+                    Text(lang("result.steps"))
                         .font(.body)
                         .fontWeight(.bold)
 
@@ -230,6 +234,7 @@ struct NudgeResultView: View {
                             shakeOffset: shakeStepId == step.id,
                             onToggle: {
                                 if locked {
+                                    HapticManager.error()
                                     withAnimation(.default) {
                                         shakeStepId = step.id
                                     }
@@ -237,7 +242,13 @@ struct NudgeResultView: View {
                                         shakeStepId = nil
                                     }
                                 } else {
+                                    let wasCompleted = viewModel.completedStepIds.contains(step.id)
                                     viewModel.toggleStep(step.id)
+                                    if !wasCompleted {
+                                        HapticManager.success()
+                                    } else {
+                                        HapticManager.light()
+                                    }
                                 }
                             }
                         )
@@ -290,7 +301,7 @@ struct NudgeResultView: View {
                             .foregroundColor(.green)
                     }
 
-                    Text("Goal")
+                    Text(lang("result.goal"))
                         .font(.body)
                         .fontWeight(.bold)
 
@@ -340,10 +351,11 @@ struct NudgeResultView: View {
         if !hasError {
             VStack(spacing: 8) {
                 Button {
+                    HapticManager.success()
                     viewModel.markComplete()
                     onDismiss?()
                 } label: {
-                    Text("Save & Close")
+                    Text(lang("result.save_close"))
                         .font(.headline)
                         .fontWeight(.bold)
                         .frame(maxWidth: .infinity)
@@ -370,6 +382,9 @@ private struct ResultStepRow: View {
     let isLast: Bool
     let shakeOffset: Bool
     let onToggle: () -> Void
+
+    @EnvironmentObject var languageManager: LanguageManager
+    private var lang: (String) -> String { { key in languageManager[key] } }
 
     var body: some View {
         Button(action: onToggle) {
@@ -429,7 +444,7 @@ private struct ResultStepRow: View {
 
                     // Tap hint for the first unlocked step
                     if !isCompleted && !isLocked {
-                        Text("Tap to complete")
+                        Text(lang("result.tap_complete"))
                             .font(.caption2)
                             .foregroundColor(.accentColor.opacity(0.6))
                             .padding(.top, 2)

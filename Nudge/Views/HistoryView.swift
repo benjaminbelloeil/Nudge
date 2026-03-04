@@ -3,6 +3,9 @@ import SwiftUI
 struct HistoryView: View {
     @ObservedObject var viewModel: HistoryViewModel
     @Binding var navigationPath: NavigationPath
+    @EnvironmentObject var languageManager: LanguageManager
+
+    private var lang: LanguageManager { languageManager }
 
     var body: some View {
         Group {
@@ -24,7 +27,7 @@ struct HistoryView: View {
                             Button(role: .destructive) {
                                 viewModel.deleteEntry(id: entry.id)
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label(lang["common.delete"], systemImage: "trash")
                             }
                         }
                     }
@@ -35,13 +38,13 @@ struct HistoryView: View {
             }
         }
         .background(AppColors.background.ignoresSafeArea())
-        .navigationTitle("History")
+        .navigationTitle(lang["history.title"])
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, prompt: "Search tasks")
+        .searchable(text: $viewModel.searchText, prompt: lang["history.search"])
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button("All Moods") { viewModel.filterMood = nil }
+                    Button(lang["history.filter_all"]) { viewModel.filterMood = nil }
                     Divider()
                     ForEach(Mood.allCases) { mood in
                         Button {
@@ -74,11 +77,11 @@ struct HistoryView: View {
                 .foregroundColor(.secondary.opacity(0.4))
 
             VStack(spacing: 8) {
-                Text("No nudges yet")
+                Text(lang["history.empty_title"])
                     .font(.title3)
                     .fontWeight(.bold)
 
-                Text("Your completed nudges will\nappear here over time.")
+                Text(lang["history.empty_subtitle"])
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -96,6 +99,7 @@ struct HistoryView: View {
 
 private struct HistoryCard: View {
     let entry: NudgeEntry
+    @EnvironmentObject var languageManager: LanguageManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -131,11 +135,14 @@ private struct HistoryCard: View {
             HStack {
                 ProgressCapsule(completed: entry.stepsCompleted, total: entry.totalSteps)
                 Spacer()
-                Text("\(entry.stepsCompleted)/\(entry.totalSteps) steps")
+                Text("\(entry.stepsCompleted)/\(entry.totalSteps) \(languageManager["common.steps"])")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 Text("·").foregroundStyle(.tertiary)
-                Text(entry.createdAt.formatted(.relative(presentation: .named)))
+                Text(entry.createdAt.formatted(
+                    Date.RelativeFormatStyle(presentation: .named, unitsStyle: .wide)
+                        .locale(languageManager.locale)
+                ))
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
@@ -152,6 +159,9 @@ struct NudgeDetailView: View {
     @ObservedObject var viewModel: HistoryViewModel
     let entryId: UUID
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var languageManager: LanguageManager
+
+    private var lang: LanguageManager { languageManager }
 
     @State private var showSteps = true
     @State private var showGoal = false
@@ -169,18 +179,18 @@ struct NudgeDetailView: View {
             if let entry = entry {
                 detailContent(entry: entry)
             } else {
-                Text("Nudge not found")
+            Text(lang["details.not_found"])
                     .foregroundStyle(.secondary)
             }
         }
-        .alert("Delete Nudge?", isPresented: $showDeleteAlert) {
-            Button("Cancel", role: .cancel) { }
-            Button("Delete", role: .destructive) {
+        .alert(lang["details.delete_title"], isPresented: $showDeleteAlert) {
+            Button(lang["common.cancel"], role: .cancel) { }
+            Button(lang["common.delete"], role: .destructive) {
                 viewModel.deleteEntry(id: entryId)
                 dismiss()
             }
         } message: {
-            Text("This nudge will be permanently removed.")
+            Text(lang["details.delete_message"])
         }
     }
 
@@ -200,7 +210,7 @@ struct NudgeDetailView: View {
                     // Progress bar
                     HorizontalTimerBar(
                         progress: entry.progressFraction,
-                        label: "\(entry.stepsCompleted) of \(entry.totalSteps) steps"
+                        label: "\(entry.stepsCompleted) / \(entry.totalSteps) \(lang["common.steps"])"
                     )
                     .padding(.horizontal, 20)
                     .padding(.bottom, 20)
@@ -249,7 +259,7 @@ struct NudgeDetailView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "trash")
                                 .font(.caption)
-                            Text("Delete Nudge")
+                            Text(lang["details.delete_button"])
                                 .font(.subheadline)
                                 .fontWeight(.medium)
                         }
@@ -265,7 +275,7 @@ struct NudgeDetailView: View {
             }
         }
         .background(AppColors.background.ignoresSafeArea())
-        .navigationTitle("Details")
+        .navigationTitle(lang["details.title"])
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.05)) {
@@ -279,6 +289,7 @@ struct NudgeDetailView: View {
 
 private struct DetailHeader: View {
     let entry: NudgeEntry
+    @EnvironmentObject var languageManager: LanguageManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -292,7 +303,7 @@ private struct DetailHeader: View {
                     HStack(spacing: 4) {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
-                        Text("Completed")
+                        Text(languageManager["details.completed"])
                             .foregroundColor(.green)
                     }
                     .font(.subheadline)
@@ -319,7 +330,10 @@ private struct DetailHeader: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(entry.createdAt.formatted(.relative(presentation: .named)))
+                Text(entry.createdAt.formatted(
+                    Date.RelativeFormatStyle(presentation: .named, unitsStyle: .wide)
+                        .locale(languageManager.locale)
+                ))
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
@@ -335,6 +349,7 @@ private struct DetailStepsCard: View {
     @Binding var showSteps: Bool
     @Binding var justCompletedStepId: Int?
     @Binding var shakeStepId: Int?
+    @EnvironmentObject var languageManager: LanguageManager
 
     private func isStepLocked(_ step: NudgeStep) -> Bool {
         let previous = entry.result.steps.filter { $0.id < step.id }
@@ -359,7 +374,7 @@ private struct DetailStepsCard: View {
                             .foregroundColor(.accentColor)
                     }
 
-                    Text("Steps")
+                    Text(languageManager["details.steps"])
                         .font(.body)
                         .fontWeight(.bold)
 
@@ -399,6 +414,7 @@ private struct DetailStepsCard: View {
                             shaking: shakeStepId == step.id,
                             onToggle: {
                                 if locked {
+                                    HapticManager.error()
                                     withAnimation(.default) {
                                         shakeStepId = step.id
                                     }
@@ -410,6 +426,7 @@ private struct DetailStepsCard: View {
                                 let wasCompleted = entry.completedStepIds.contains(step.id)
                                 viewModel.toggleStepCompletion(entryId: entry.id, stepId: step.id)
                                 if !wasCompleted {
+                                    HapticManager.success()
                                     withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
                                         justCompletedStepId = step.id
                                     }
@@ -418,6 +435,8 @@ private struct DetailStepsCard: View {
                                             justCompletedStepId = nil
                                         }
                                     }
+                                } else {
+                                    HapticManager.light()
                                 }
                             }
                         )
@@ -439,6 +458,7 @@ private struct DetailStepsCard: View {
 private struct DetailGoalCard: View {
     let entry: NudgeEntry
     @Binding var showGoal: Bool
+    @EnvironmentObject var languageManager: LanguageManager
 
     var body: some View {
         VStack(spacing: 0) {
@@ -458,7 +478,7 @@ private struct DetailGoalCard: View {
                             .foregroundColor(.green)
                     }
 
-                    Text("Goal")
+                    Text(languageManager["details.goal"])
                         .font(.body)
                         .fontWeight(.bold)
 
@@ -497,6 +517,7 @@ private struct DetailGoalCard: View {
 
 private struct DetailInfoSection: View {
     let entry: NudgeEntry
+    @EnvironmentObject var languageManager: LanguageManager
 
     var body: some View {
         VStack(spacing: 0) {
@@ -511,7 +532,7 @@ private struct DetailInfoSection: View {
                         .foregroundColor(.orange)
                 }
 
-                Text("Info")
+                Text(languageManager["details.info"])
                     .font(.body)
                     .fontWeight(.bold)
                 Spacer()
@@ -520,12 +541,33 @@ private struct DetailInfoSection: View {
             .padding(.vertical, 18)
 
             VStack(spacing: 12) {
-                InfoRow(label: "Created", value: entry.createdAt.formatted(date: .abbreviated, time: .shortened))
-                InfoRow(label: "Mood", value: "\(entry.mood.emoji) \(entry.mood.displayName)")
-                InfoRow(label: "Energy", value: entry.energy.displayName)
-                InfoRow(label: "Source", value: entry.source == .ai ? "Nudge Pro" : entry.source == .appleIntelligence ? "Apple Intelligence" : entry.source == .manual ? "Manual" : "Template")
+                InfoRow(
+                    label: languageManager["details.created"],
+                    value: entry.createdAt.formatted(
+                        Date.FormatStyle(date: .abbreviated, time: .shortened)
+                            .locale(languageManager.locale)
+                    )
+                )
+                InfoRow(label: languageManager["details.mood"], value: "\(entry.mood.emoji) \(entry.mood.displayName)")
+                InfoRow(label: languageManager["details.energy"], value: entry.energy.displayName)
+                InfoRow(
+                    label: languageManager["details.source"],
+                    value: entry.source == .ai
+                        ? languageManager["settings.account.pro_badge"]
+                        : entry.source == .appleIntelligence
+                            ? "Apple Intelligence"
+                            : entry.source == .manual
+                                ? languageManager["details.source_manual"]
+                                : languageManager["details.source_template"]
+                )
                 if let completedAt = entry.completedAt {
-                    InfoRow(label: "Completed", value: completedAt.formatted(date: .abbreviated, time: .shortened))
+                    InfoRow(
+                        label: languageManager["details.completed"],
+                        value: completedAt.formatted(
+                            Date.FormatStyle(date: .abbreviated, time: .shortened)
+                                .locale(languageManager.locale)
+                        )
+                    )
                 }
             }
             .padding(.horizontal, 20)
@@ -564,6 +606,7 @@ private struct DetailTimelineRow: View {
     let justCompleted: Bool
     let shaking: Bool
     let onToggle: () -> Void
+    @EnvironmentObject var languageManager: LanguageManager
 
     var body: some View {
         Button(action: onToggle) {
@@ -618,7 +661,7 @@ private struct DetailTimelineRow: View {
 
                     // Tap hint for unlocked incomplete steps
                     if !isCompleted && !isLocked {
-                        Text("Tap to complete")
+                        Text(languageManager["details.tap_complete"])
                             .font(.caption2)
                             .foregroundColor(.accentColor.opacity(0.6))
                             .padding(.top, 2)
@@ -653,16 +696,22 @@ private struct DetailShakeEffect: GeometryEffect {
 private struct DetailCompleteButton: View {
     let entry: NudgeEntry
     let viewModel: HistoryViewModel
+    @EnvironmentObject var languageManager: LanguageManager
 
     var body: some View {
         Button {
+            if entry.isCompleted {
+                HapticManager.warning()
+            } else {
+                HapticManager.success()
+            }
             viewModel.toggleCompletion(id: entry.id)
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: entry.isCompleted ? "arrow.uturn.backward" : "checkmark.circle.fill")
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                Text(entry.isCompleted ? "Mark Incomplete" : "Mark Complete")
+                Text(entry.isCompleted ? languageManager["details.mark_incomplete"] : languageManager["details.mark_complete"])
                     .font(.headline)
                     .fontWeight(.bold)
             }

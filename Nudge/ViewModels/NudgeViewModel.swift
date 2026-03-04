@@ -225,6 +225,8 @@ final class NudgeViewModel: ObservableObject {
             isCompleted: allDone, completedAt: allDone ? Date() : nil,
             source: currentSource, completedStepIds: completedStepIds
         ))
+        // User completed a nudge today — cancel any "streak at risk" warning for today
+        NotificationManager.shared.cancelStreakRisk()
         reset()
     }
 }

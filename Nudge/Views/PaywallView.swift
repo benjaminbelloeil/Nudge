@@ -3,7 +3,10 @@ import RevenueCat
 
 struct NudgePaywallView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @EnvironmentObject var languageManager: LanguageManager
     @Environment(\.dismiss) private var dismiss
+
+    private var lang: LanguageManager { languageManager }
 
     @State private var selectedPackage: Package?
     @State private var isPurchasing = false
@@ -82,15 +85,15 @@ struct NudgePaywallView: View {
                 // MARK: - Title
                 VStack(spacing: 4) {
                     HStack(spacing: 0) {
-                        Text("GO ")
+                        Text(lang["paywall.title_1"])
                             .foregroundColor(.primary)
-                        + Text("PRO")
+                        + Text(lang["paywall.title_2"])
                             .foregroundColor(.accentColor)
                     }
                     .font(.system(size: 30, weight: .black).width(.expanded))
                     .tracking(6)
 
-                    Text("Remove limits. Nudge without friction.")
+                    Text(lang["paywall.subtitle"])
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -99,9 +102,9 @@ struct NudgePaywallView: View {
 
                 // MARK: - Feature Cards
                 VStack(spacing: 6) {
-                    featureCard(icon: "infinity", title: "Unlimited Nudges", subtitle: "No weekly caps, ever")
-                    featureCard(icon: "bolt.fill", title: "Priority AI", subtitle: "Faster, smarter step generation")
-                    featureCard(icon: "heart.fill", title: "Support Indie Dev", subtitle: "Keep Nudge alive and improving")
+                    featureCard(icon: "infinity", title: lang["paywall.feature_unlimited_title"], subtitle: lang["paywall.feature_unlimited_sub"])
+                    featureCard(icon: "bolt.fill", title: lang["paywall.feature_ai_title"], subtitle: lang["paywall.feature_ai_sub"])
+                    featureCard(icon: "heart.fill", title: lang["paywall.feature_support_title"], subtitle: lang["paywall.feature_support_sub"])
                 }
                 .padding(.horizontal, 20)
                 .opacity(appeared ? 1 : 0)
@@ -137,7 +140,7 @@ struct NudgePaywallView: View {
                                 ProgressView()
                                     .tint(Color(UIColor.systemBackground))
                             } else {
-                                Text("Continue")
+                                Text(lang["paywall.cta"])
                                     .font(.headline)
                                     .fontWeight(.bold)
                             }
@@ -152,12 +155,12 @@ struct NudgePaywallView: View {
                     }
                     .disabled(selectedPackage == nil || isPurchasing)
 
-                    Button("Restore Purchases") { restore() }
+                    Button(lang["paywall.restore"]) { restore() }
                         .font(.caption)
                         .foregroundColor(.secondary)
 
                     // Required subscription disclosure (App Store guidelines)
-                    Text("Subscription auto-renews at the same price unless cancelled at least 24 hours before the end of the current period. Manage or cancel in App Store settings.")
+                    Text(lang["paywall.disclosure"])
                         .font(.system(size: 10))
                         .foregroundStyle(.tertiary)
                         .multilineTextAlignment(.center)
@@ -243,7 +246,7 @@ struct NudgePaywallView: View {
                             .fontWeight(.semibold)
                             .foregroundColor(.primary)
                         if isYearly {
-                            Text("BEST VALUE")
+                            Text(lang["paywall.best_value"])
                                 .font(.system(size: 9, weight: .heavy))
                                 .foregroundColor(.green)
                                 .padding(.horizontal, 6)
@@ -253,8 +256,8 @@ struct NudgePaywallView: View {
                         }
                     }
                     Text(isYearly
-                        ? "\(pkg.localizedPriceString)/year"
-                        : "\(pkg.localizedPriceString)/month"
+                        ? "\(pkg.localizedPriceString)\(lang["paywall.per_year"])"
+                        : "\(pkg.localizedPriceString)\(lang["paywall.per_month"])"
                     )
                         .font(.subheadline)
                         .foregroundColor(.secondary)

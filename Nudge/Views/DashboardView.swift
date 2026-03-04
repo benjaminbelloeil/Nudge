@@ -3,12 +3,14 @@ import SwiftUI
 struct DashboardView: View {
     @EnvironmentObject var historyViewModel: HistoryViewModel
     @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @EnvironmentObject var languageManager: LanguageManager
     @Binding var navigationPath: NavigationPath
     @State private var appeared = false
-    @State private var showTips = false
     @State private var showPaywall = false
     @State private var displayedMonth: Date = Date()
     @State private var selectedDate: Date? = nil
+
+    private var lang: LanguageManager { languageManager }
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -37,18 +39,14 @@ struct DashboardView: View {
                         .font(.body)
                         .foregroundColor(.accentColor)
                 }
-
             }
             ToolbarItem(placement: .topBarLeading) {
-                Button { showTips = true } label: {
-                    Image(systemName: "questionmark.circle")
+                NavigationLink(value: NavigationDestination.settings) {
+                    Image(systemName: "gearshape")
                         .font(.body)
                         .foregroundColor(.secondary)
                 }
             }
-        }
-        .sheet(isPresented: $showTips) {
-            TipsSheet()
         }
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.05)) {
@@ -89,6 +87,7 @@ struct DashboardView: View {
 
     private var newNudgeButton: some View {
         Button {
+            HapticManager.medium()
             if subscriptionManager.canCreateNudge() {
                 navigationPath.append(NavigationDestination.newNudge)
             } else {
@@ -97,11 +96,11 @@ struct DashboardView: View {
         } label: {
             HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("New Nudge")
+                    Text(lang["dashboard.new_nudge"])
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
-                    Text("Start your next task")
+                    Text(lang["dashboard.new_nudge_subtitle"])
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.7))
                 }
@@ -122,6 +121,8 @@ struct DashboardView: View {
         .offset(y: appeared ? 0 : 14)
         .sheet(isPresented: $showPaywall) {
             NudgePaywallView()
+                .environmentObject(subscriptionManager)
+                .environmentObject(languageManager)
         }
     }
 
@@ -131,17 +132,17 @@ struct DashboardView: View {
         HStack(spacing: 10) {
             StatPill(
                 value: "\(historyViewModel.entries.count)",
-                label: "Total",
+                label: lang["dashboard.total"],
                 color: Color(red: 0.35, green: 0.80, blue: 0.55)
             )
             StatPill(
                 value: "\(Int(historyViewModel.completionRate * 100))%",
-                label: "Done",
+                label: lang["dashboard.done"],
                 color: Color(red: 0.55, green: 0.45, blue: 0.95)
             )
             StatPill(
                 value: "\(historyViewModel.currentStreak)d",
-                label: "Streak",
+                label: lang["dashboard.streak"],
                 color: Color(red: 0.95, green: 0.65, blue: 0.25)
             )
         }
@@ -156,7 +157,7 @@ struct DashboardView: View {
     private var recentSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("RECENT")
+                Text(lang["dashboard.recent"])
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundStyle(.secondary)
@@ -164,7 +165,7 @@ struct DashboardView: View {
                 Spacer()
                 if !historyViewModel.entries.isEmpty {
                     NavigationLink(value: NavigationDestination.history) {
-                        Text("View all")
+                        Text(lang["dashboard.view_all"])
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(.accentColor)
@@ -178,10 +179,10 @@ struct DashboardView: View {
                         .font(.system(size: 28))
                         .foregroundColor(.accentColor)
                     VStack(spacing: 4) {
-                        Text("No nudges yet")
+                        Text(lang["dashboard.no_nudges_title"])
                             .font(.headline)
                             .fontWeight(.bold)
-                        Text("Create your first nudge to get started")
+                        Text(lang["dashboard.no_nudges_subtitle"])
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -203,7 +204,7 @@ struct DashboardView: View {
                         Button(role: .destructive) {
                             historyViewModel.deleteEntry(id: entry.id)
                         } label: {
-                            Label("Delete", systemImage: "trash")
+                            Label(lang["common.delete"], systemImage: "trash")
                         }
                     }
                 }
@@ -217,7 +218,7 @@ struct DashboardView: View {
 
     private var calendarSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("CALENDAR")
+            Text(lang["dashboard.calendar"])
                 .font(.caption)
                 .fontWeight(.bold)
                 .foregroundStyle(.secondary)
@@ -267,7 +268,7 @@ struct DashboardView: View {
 
                 // Weekday headers
                 HStack(spacing: 0) {
-                    ForEach(Array(["S", "M", "T", "W", "T", "F", "S"].enumerated()), id: \.offset) { _, day in
+                    ForEach(Array(languageManager.weekdaySymbols.enumerated()), id: \.offset) { _, day in
                         Text(day)
                             .font(.caption)
                             .fontWeight(.bold)
@@ -287,6 +288,7 @@ struct DashboardView: View {
                             let isSelected = selectedDate.map { Calendar.current.isDate($0, inSameDayAs: date) } ?? false
 
                             Button {
+                                HapticManager.selection()
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                                     if isSelected {
                                         selectedDate = nil
@@ -335,12 +337,15 @@ struct DashboardView: View {
                     if !dayEntries.isEmpty {
                         VStack(spacing: 8) {
                             HStack {
-                                Text(selectedDate.formatted(date: .abbreviated, time: .omitted))
+                                Text(selectedDate.formatted(
+                                    Date.FormatStyle(date: .abbreviated, time: .omitted)
+                                        .locale(languageManager.locale)
+                                ))
                                     .font(.caption)
                                     .fontWeight(.semibold)
                                     .foregroundStyle(.secondary)
                                 Spacer()
-                                Text("\(dayEntries.count) nudge\(dayEntries.count == 1 ? "" : "s")")
+                                Text("\(dayEntries.count) \(dayEntries.count == 1 ? lang["dashboard.nudge_singular"] : lang["dashboard.nudge_plural"])")
                                     .font(.caption2)
                                     .foregroundStyle(.tertiary)
                             }
@@ -371,7 +376,7 @@ struct DashboardView: View {
                     } else {
                         HStack {
                             Spacer()
-                            Text("No nudges on this day")
+                            Text(lang["dashboard.no_nudges_on_day"])
                                 .font(.caption)
                                 .foregroundStyle(.tertiary)
                             Spacer()
@@ -394,6 +399,7 @@ struct DashboardView: View {
     private func monthYearString(for date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
+        formatter.locale = languageManager.locale
         return formatter.string(from: date)
     }
 
@@ -436,8 +442,8 @@ struct DashboardView: View {
             NavigationLink(value: NavigationDestination.history) {
                 NavCard(
                     icon: "clock.arrow.circlepath",
-                    title: "History",
-                    subtitle: "\(historyViewModel.entries.count) nudges",
+                    title: lang["dashboard.history"],
+                    subtitle: "\(historyViewModel.entries.count) \(lang["dashboard.nudges"])",
                     color: Color(red: 0.20, green: 0.55, blue: 0.95)
                 )
             }
@@ -446,8 +452,8 @@ struct DashboardView: View {
             NavigationLink(value: NavigationDestination.insights) {
                 NavCard(
                     icon: "chart.bar.fill",
-                    title: "Insights",
-                    subtitle: "View trends",
+                    title: lang["dashboard.insights"],
+                    subtitle: lang["dashboard.view_trends"],
                     color: Color(red: 0.55, green: 0.45, blue: 0.95)
                 )
             }
@@ -459,9 +465,9 @@ struct DashboardView: View {
 
     private var greetingText: String {
         let hour = Calendar.current.component(.hour, from: Date())
-        if hour < 12 { return "GOOD MORNING" }
-        if hour < 18 { return "GOOD AFTERNOON" }
-        return "GOOD EVENING"
+        if hour < 12 { return lang["dashboard.greeting.morning"] }
+        if hour < 18 { return lang["dashboard.greeting.afternoon"] }
+        return lang["dashboard.greeting.evening"]
     }
 }
 
@@ -498,6 +504,7 @@ private struct StatPill: View {
 
 private struct RecentCard: View {
     let entry: NudgeEntry
+    @EnvironmentObject var languageManager: LanguageManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -533,11 +540,14 @@ private struct RecentCard: View {
             HStack {
                 ProgressCapsule(completed: entry.stepsCompleted, total: entry.totalSteps)
                 Spacer()
-                Text("\(entry.stepsCompleted)/\(entry.totalSteps) steps")
+                Text("\(entry.stepsCompleted)/\(entry.totalSteps) \(languageManager["common.steps"])")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 Text("·").foregroundStyle(.tertiary)
-                Text(entry.createdAt.formatted(.relative(presentation: .named)))
+                Text(entry.createdAt.formatted(
+                    Date.RelativeFormatStyle(presentation: .named, unitsStyle: .wide)
+                        .locale(languageManager.locale)
+                ))
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
@@ -586,14 +596,16 @@ private struct NavCard: View {
 
 // MARK: - Tips Sheet (Rich Visual How-It-Works)
 
-private struct TipsSheet: View {
+struct TipsSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var languageManager: LanguageManager
+    private var lang: (String) -> String { { key in languageManager[key] } }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    Text("Nudge breaks through procrastination with tiny, progressive steps tailored to how you feel.")
+                    Text(lang("tips.intro"))
                         .font(.body)
                         .foregroundStyle(.secondary)
                         .lineSpacing(3)
@@ -602,32 +614,32 @@ private struct TipsSheet: View {
 
                     HowItWorksSection(
                         stepNumber: "1",
-                        title: "Describe Your Task",
-                        description: "Tell Nudge what you've been putting off. The more detail, the better your steps.",
+                        title: lang("tips.step1_title"),
+                        description: lang("tips.step1_desc"),
                         color: Color.accentColor,
                         mockupContent: AnyView(TaskMockup())
                     )
 
                     HowItWorksSection(
                         stepNumber: "2",
-                        title: "Set Mood & Energy",
-                        description: "Pick your current mood and energy level. Nudge adapts: low energy gets gentler steps.",
+                        title: lang("tips.step2_title"),
+                        description: lang("tips.step2_desc"),
                         color: Color(red: 0.55, green: 0.45, blue: 0.95),
                         mockupContent: AnyView(MoodEnergyMockup())
                     )
 
                     HowItWorksSection(
                         stepNumber: "3",
-                        title: "Get Your Action Plan",
-                        description: "4 progressive steps, each building on the last. From a tiny first move to real progress.",
+                        title: lang("tips.step3_title"),
+                        description: lang("tips.step3_desc"),
                         color: Color(red: 0.35, green: 0.80, blue: 0.55),
                         mockupContent: AnyView(StepsMockup())
                     )
 
                     HowItWorksSection(
                         stepNumber: "4",
-                        title: "Track Your Progress",
-                        description: "See streaks, completion rate, and mood patterns. Build momentum over time.",
+                        title: lang("tips.step4_title"),
+                        description: lang("tips.step4_desc"),
                         color: Color(red: 0.95, green: 0.65, blue: 0.25),
                         mockupContent: AnyView(StatsMockup())
                     )
@@ -638,11 +650,11 @@ private struct TipsSheet: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Pro tip")
+                            Text(lang("tips.protip_title"))
                                 .font(.caption)
                                 .fontWeight(.bold)
                                 .foregroundStyle(.secondary)
-                            Text("Done beats perfect. A rough start is infinitely better than a perfect plan you never begin.")
+                            Text(lang("tips.protip_body"))
                                 .font(.caption)
                                 .foregroundStyle(.tertiary)
                                 .lineSpacing(2)
@@ -657,11 +669,11 @@ private struct TipsSheet: View {
                 .padding(.bottom, 32)
             }
             .background(AppColors.background.ignoresSafeArea())
-            .navigationTitle("How Nudge Works")
+            .navigationTitle(lang("tips.title"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
+                    Button(lang("tips.done")) { dismiss() }
                 }
             }
         }

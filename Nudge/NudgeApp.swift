@@ -9,7 +9,10 @@ import SwiftUI
 @main
 struct NudgeApp: App {
     @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @StateObject private var languageManager = LanguageManager.shared
     @Environment(\.scenePhase) private var scenePhase
+
+    @AppStorage("notificationsEnabled") private var notificationsEnabled = false
 
     init() {
         SubscriptionManager.shared.configure()
@@ -19,10 +22,17 @@ struct NudgeApp: App {
         WindowGroup {
             AppRootView()
                 .environmentObject(subscriptionManager)
+                .environmentObject(languageManager)
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                Task { await SubscriptionManager.shared.refreshCustomerInfo() }
+                Task {
+                    await SubscriptionManager.shared.refreshCustomerInfo()
+                    // Re-schedule notifications every time app becomes active (ensures they stay registered)
+                    if notificationsEnabled {
+                        await NotificationManager.shared.scheduleAll()
+                    }
+                }
             }
         }
     }
@@ -30,7 +40,17 @@ struct NudgeApp: App {
 
 struct AppRootView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("appearanceMode") private var appearanceMode = 0
     @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @EnvironmentObject var languageManager: LanguageManager
+
+    private var colorScheme: ColorScheme? {
+        switch appearanceMode {
+        case 1: return .light
+        case 2: return .dark
+        default: return nil
+        }
+    }
 
     var body: some View {
         Group {
@@ -43,5 +63,6 @@ struct AppRootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.4), value: hasCompletedOnboarding)
+        .preferredColorScheme(colorScheme)
     }
 }

@@ -4,6 +4,8 @@ import Charts
 struct StatsView: View {
     @ObservedObject var viewModel: HistoryViewModel
     @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @EnvironmentObject var languageManager: LanguageManager
+    private var lang: (String) -> String { { key in languageManager[key] } }
     @State private var showPaywall = false
 
     var body: some View {
@@ -45,11 +47,11 @@ struct StatsView: View {
                                         .clipShape(Circle())
 
                                     VStack(spacing: 6) {
-                                        Text("Unlock Full Insights")
+                                        Text(lang("stats.unlock_title"))
                                             .font(.title3)
                                             .fontWeight(.bold)
 
-                                        Text("Upgrade to Pro to see all your\ntrends, moods, and patterns.")
+                                        Text(lang("stats.unlock_body"))
                                             .font(.subheadline)
                                             .foregroundStyle(.secondary)
                                             .multilineTextAlignment(.center)
@@ -57,9 +59,10 @@ struct StatsView: View {
                                     }
 
                                     Button {
+                                        HapticManager.medium()
                                         showPaywall = true
                                     } label: {
-                                        Text("Upgrade")
+                                        Text(lang("stats.upgrade"))
                                             .font(.subheadline)
                                             .fontWeight(.bold)
                                             .foregroundColor(.white)
@@ -83,10 +86,12 @@ struct StatsView: View {
             }
         }
         .background(AppColors.background.ignoresSafeArea())
-        .navigationTitle("Insights")
+        .navigationTitle(lang("stats.title"))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showPaywall) {
             NudgePaywallView()
+                .environmentObject(subscriptionManager)
+                .environmentObject(languageManager)
         }
     }
 
@@ -101,11 +106,11 @@ struct StatsView: View {
                 .foregroundColor(.secondary.opacity(0.4))
 
             VStack(spacing: 8) {
-                Text("No insights yet")
+                Text(lang("stats.empty_title"))
                     .font(.title3)
                     .fontWeight(.bold)
 
-                Text("Complete your first nudge\nand trends will appear here.")
+                Text(lang("stats.empty_subtitle"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -122,9 +127,9 @@ struct StatsView: View {
 
     private var summaryRow: some View {
         HStack(spacing: 10) {
-            InsightPill(title: "Total", value: "\(viewModel.entries.count)", icon: "bolt.fill", color: Color(red: 0.35, green: 0.80, blue: 0.55))
-            InsightPill(title: "Done", value: "\(Int(viewModel.completionRate * 100))%", icon: "checkmark.circle.fill", color: Color(red: 0.55, green: 0.45, blue: 0.95))
-            InsightPill(title: "Streak", value: "\(viewModel.currentStreak)d", icon: "flame.fill", color: Color(red: 0.95, green: 0.65, blue: 0.25))
+            InsightPill(title: lang("dashboard.total"), value: "\(viewModel.entries.count)", icon: "bolt.fill", color: Color(red: 0.35, green: 0.80, blue: 0.55))
+            InsightPill(title: lang("dashboard.done"), value: "\(Int(viewModel.completionRate * 100))%", icon: "checkmark.circle.fill", color: Color(red: 0.55, green: 0.45, blue: 0.95))
+            InsightPill(title: lang("dashboard.streak"), value: "\(viewModel.currentStreak)d", icon: "flame.fill", color: Color(red: 0.95, green: 0.65, blue: 0.25))
         }
     }
 
@@ -132,7 +137,7 @@ struct StatsView: View {
 
     private var weeklyChart: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("WEEKLY ACTIVITY")
+            Text(lang("stats.weekly"))
                 .font(.caption)
                 .fontWeight(.bold)
                 .foregroundStyle(.secondary)
@@ -165,7 +170,7 @@ struct StatsView: View {
 
     private var completionDonut: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("COMPLETION BREAKDOWN")
+            Text(lang("stats.completion_breakdown"))
                 .font(.caption)
                 .fontWeight(.bold)
                 .foregroundStyle(.secondary)
@@ -176,9 +181,9 @@ struct StatsView: View {
             let notStarted = viewModel.entries.filter { !$0.isCompleted && $0.stepsCompleted == 0 }.count
 
             let slices: [(label: String, value: Int, color: Color)] = [
-                ("Completed", completed, Color(red: 0.35, green: 0.80, blue: 0.55)),
-                ("In Progress", inProgress, Color(red: 0.55, green: 0.45, blue: 0.95)),
-                ("Not Started", notStarted, Color.secondary.opacity(0.3))
+                (lang("stats.completed"), completed, Color(red: 0.35, green: 0.80, blue: 0.55)),
+                (lang("stats.in_progress"), inProgress, Color(red: 0.55, green: 0.45, blue: 0.95)),
+                (lang("stats.not_started"), notStarted, Color.secondary.opacity(0.3))
             ].filter { $0.value > 0 }
 
             HStack(spacing: 20) {
@@ -226,7 +231,7 @@ struct StatsView: View {
 
     private var moodChart: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("MOOD WHEN PROCRASTINATING")
+            Text(lang("stats.mood_section"))
                 .font(.caption)
                 .fontWeight(.bold)
                 .foregroundStyle(.secondary)
@@ -276,7 +281,7 @@ struct StatsView: View {
 
     private var frictionLabels: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("COMMON FRICTION TYPES")
+            Text(lang("stats.friction"))
                 .font(.caption)
                 .fontWeight(.bold)
                 .foregroundStyle(.secondary)
@@ -296,7 +301,7 @@ struct StatsView: View {
             }
 
             if data.isEmpty {
-                Text("No data yet")
+                Text(lang("stats.no_data"))
                     .font(.subheadline)
                     .foregroundStyle(.tertiary)
             }
@@ -314,7 +319,7 @@ struct StatsView: View {
 
         return VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Text("HOW TO IMPROVE")
+                Text(lang("stats.improve"))
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundStyle(.secondary)
@@ -346,12 +351,12 @@ struct StatsView: View {
                     ProgressView()
                         .progressViewStyle(.circular)
                         .tint(Color(red: 0.55, green: 0.45, blue: 0.95))
-                    Text("Generating your insight...")
+                    Text(lang("stats.generating"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
             } else {
-                Text("Keep creating nudges — your personalised reduction plan will appear here once you have more data.")
+                Text(lang("stats.no_insight"))
                     .font(.subheadline)
                     .foregroundStyle(.tertiary)
                     .lineSpacing(4)

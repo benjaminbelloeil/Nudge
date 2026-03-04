@@ -63,6 +63,14 @@ final class HistoryViewModel: ObservableObject {
         persistence.deleteEntry(id: id)
     }
 
+    func clearAllEntries() {
+        persistence.clearAll()
+    }
+
+    func exportJSON() -> Data? {
+        try? JSONEncoder().encode(entries)
+    }
+
     func toggleCompletion(id: UUID) {
         persistence.toggleCompletion(id: id)
     }

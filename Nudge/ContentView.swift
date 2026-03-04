@@ -4,6 +4,7 @@ struct ContentView: View {
     @StateObject private var nudgeViewModel = NudgeViewModel()
     @StateObject private var historyViewModel = HistoryViewModel()
     @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @EnvironmentObject var languageManager: LanguageManager
     @State private var navigationPath = NavigationPath()
     @State private var showPaywall = false
 
@@ -11,6 +12,7 @@ struct ContentView: View {
         NavigationStack(path: $navigationPath) {
             DashboardView(navigationPath: $navigationPath)
                 .environmentObject(historyViewModel)
+                .environmentObject(languageManager)
                 .navigationDestination(for: NavigationDestination.self) { destination in
                     switch destination {
                     case .newNudge:
@@ -18,21 +20,35 @@ struct ContentView: View {
                             viewModel: nudgeViewModel,
                             onDismiss: { navigationPath = NavigationPath() }
                         )
+                        .environmentObject(languageManager)
+                        .environmentObject(subscriptionManager)
                     case .history:
                         HistoryView(viewModel: historyViewModel, navigationPath: $navigationPath)
+                            .environmentObject(languageManager)
                     case .insights:
                         StatsView(viewModel: historyViewModel)
+                            .environmentObject(languageManager)
+                            .environmentObject(subscriptionManager)
                     case .nudgeDetail(let id):
                         NudgeDetailView(viewModel: historyViewModel, entryId: id)
+                            .environmentObject(languageManager)
                     case .paywall:
                         NudgePaywallView()
+                            .environmentObject(subscriptionManager)
+                            .environmentObject(languageManager)
                     case .customerCenter:
                         CustomerCenterView()
+                    case .settings:
+                        SettingsView()
+                            .environmentObject(historyViewModel)
+                            .environmentObject(languageManager)
                     }
                 }
         }
         .sheet(isPresented: $showPaywall) {
             NudgePaywallView()
+                .environmentObject(subscriptionManager)
+                .environmentObject(languageManager)
         }
     }
 }

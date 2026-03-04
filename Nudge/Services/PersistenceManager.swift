@@ -106,6 +106,15 @@ final class PersistenceManager: ObservableObject {
         persist()
     }
 
+    func clearAll() {
+        entries.removeAll()
+        persist()
+    }
+
+    func exportFileURL() -> URL? {
+        fileURL
+    }
+
     func toggleCompletion(id: UUID) {
         guard let index = entries.firstIndex(where: { $0.id == id }) else { return }
         entries[index].isCompleted.toggle()

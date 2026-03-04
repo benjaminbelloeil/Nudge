@@ -6,6 +6,9 @@ struct MoodInputView: View {
     let onGenerate: () -> Void
     let onBack: () -> Void
 
+    @EnvironmentObject var languageManager: LanguageManager
+    private var lang: (String) -> String { { key in languageManager[key] } }
+
     private let columns = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
@@ -19,18 +22,18 @@ struct MoodInputView: View {
                 VStack(spacing: 12) {
                     // Title
                     VStack(spacing: 4) {
-                        Text("Step 3")
+                        Text(lang("flow.step3_label"))
                             .font(.caption)
                             .fontWeight(.bold)
                             .foregroundColor(.accentColor)
                             .tracking(1)
-                        Text("What's your\nmood?")
+                        Text(lang("flow.mood_title"))
                             .font(.system(size: 26, weight: .bold))
                             .multilineTextAlignment(.center)
                             .lineSpacing(2)
                     }
 
-                    Text("Pick what feels closest right now.")
+                    Text(lang("flow.mood_subtitle"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -53,8 +56,11 @@ struct MoodInputView: View {
                 }
 
                 HStack(spacing: 12) {
-                    Button(action: onBack) {
-                        Text("Back")
+                    Button {
+                        HapticManager.light()
+                        onBack()
+                    } label: {
+                        Text(lang("flow.back"))
                             .font(.headline)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
@@ -63,8 +69,11 @@ struct MoodInputView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
 
-                    Button(action: onGenerate) {
-                        Text("Nudge Me")
+                    Button {
+                        HapticManager.medium()
+                        onGenerate()
+                    } label: {
+                        Text(lang("flow.nudge_me"))
                             .font(.headline)
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity)
@@ -81,3 +90,4 @@ struct MoodInputView: View {
         }
     }
 }
+

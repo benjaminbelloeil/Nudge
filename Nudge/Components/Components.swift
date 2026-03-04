@@ -1,4 +1,24 @@
 import SwiftUI
+import UIKit
+
+// MARK: - Haptic Manager
+
+enum HapticManager {
+    /// Respects the user's "Haptic Feedback" preference (defaults to enabled).
+    static var isEnabled: Bool {
+        // UserDefaults.bool returns false for missing keys; treat missing as enabled.
+        UserDefaults.standard.object(forKey: "hapticsEnabled") == nil
+            ? true
+            : UserDefaults.standard.bool(forKey: "hapticsEnabled")
+    }
+    static func light()     { guard isEnabled else { return }; UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+    static func medium()    { guard isEnabled else { return }; UIImpactFeedbackGenerator(style: .medium).impactOccurred() }
+    static func heavy()     { guard isEnabled else { return }; UIImpactFeedbackGenerator(style: .heavy).impactOccurred() }
+    static func success()   { guard isEnabled else { return }; UINotificationFeedbackGenerator().notificationOccurred(.success) }
+    static func error()     { guard isEnabled else { return }; UINotificationFeedbackGenerator().notificationOccurred(.error) }
+    static func warning()   { guard isEnabled else { return }; UINotificationFeedbackGenerator().notificationOccurred(.warning) }
+    static func selection() { guard isEnabled else { return }; UISelectionFeedbackGenerator().selectionChanged() }
+}
 
 // MARK: - App Colors
 
@@ -71,7 +91,10 @@ struct MoodChip: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            HapticManager.selection()
+            action()
+        } label: {
             HStack(spacing: 10) {
                 Text(mood.emoji)
                     .font(.title3)
@@ -108,7 +131,10 @@ struct EnergyDot: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            HapticManager.selection()
+            action()
+        } label: {
             VStack(spacing: 10) {
                 Circle()
                     .fill(isActive ? Color.accentColor : Color.secondary.opacity(0.15))

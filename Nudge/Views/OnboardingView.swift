@@ -102,6 +102,14 @@ struct OnboardingView: View {
                             currentPage += 1
                         }
                     } else {
+                        // Request notification permission in context before entering the app
+                        Task {
+                            let granted = await NotificationManager.shared.requestPermission()
+                            if granted {
+                                UserDefaults.standard.set(true, forKey: "notificationsEnabled")
+                                await NotificationManager.shared.scheduleAll()
+                            }
+                        }
                         onComplete()
                     }
                 }) {

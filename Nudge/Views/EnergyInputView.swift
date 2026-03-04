@@ -5,6 +5,9 @@ struct EnergyInputView: View {
     let onNext: () -> Void
     let onBack: () -> Void
 
+    @EnvironmentObject var languageManager: LanguageManager
+    private var lang: (String) -> String { { key in languageManager[key] } }
+
     var body: some View {
         ZStack {
             AppColors.background.ignoresSafeArea()
@@ -15,18 +18,18 @@ struct EnergyInputView: View {
                 VStack(spacing: 12) {
                     // Title
                     VStack(spacing: 4) {
-                        Text("Step 2")
+                        Text(lang("flow.step2_label"))
                             .font(.caption)
                             .fontWeight(.bold)
                             .foregroundColor(.accentColor)
                             .tracking(1)
-                        Text("How's your\nenergy?")
+                        Text(lang("flow.energy_title"))
                             .font(.system(size: 26, weight: .bold))
                             .multilineTextAlignment(.center)
                             .lineSpacing(2)
                     }
 
-                    Text("This helps tailor the nudge to what you can handle.")
+                    Text(lang("flow.energy_subtitle"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -51,8 +54,11 @@ struct EnergyInputView: View {
                 Spacer()
 
                 HStack(spacing: 12) {
-                    Button(action: onBack) {
-                        Text("Back")
+                    Button {
+                        HapticManager.light()
+                        onBack()
+                    } label: {
+                        Text(lang("flow.back"))
                             .font(.headline)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
@@ -61,8 +67,11 @@ struct EnergyInputView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
 
-                    Button(action: onNext) {
-                        Text("Next")
+                    Button {
+                        HapticManager.light()
+                        onNext()
+                    } label: {
+                        Text(lang("flow.next"))
                             .font(.headline)
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity)
@@ -80,11 +89,12 @@ struct EnergyInputView: View {
 
     private var energyDescription: String {
         switch selectedEnergy {
-        case .veryLow: "Barely keeping eyes open."
-        case .low: "Running low. Gentle actions only."
-        case .medium: "Functional. Can handle a moderate nudge."
-        case .high: "Feeling capable. Ready for a solid push."
-        case .veryHigh: "Full battery. Can take on a sprint."
+        case .veryLow: lang("energy.very_low")
+        case .low:     lang("energy.low")
+        case .medium:  lang("energy.medium")
+        case .high:    lang("energy.high")
+        case .veryHigh: lang("energy.very_high")
         }
     }
 }
+

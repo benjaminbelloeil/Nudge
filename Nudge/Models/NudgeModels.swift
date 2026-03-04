@@ -67,7 +67,7 @@ enum NudgeSource: String, Codable, Sendable {
 // MARK: - Navigation
 
 enum NavigationDestination: Hashable {
-    case newNudge, history, insights, nudgeDetail(UUID), paywall, customerCenter
+    case newNudge, history, insights, nudgeDetail(UUID), paywall, customerCenter, settings
 }
 
 // MARK: - Input Step
