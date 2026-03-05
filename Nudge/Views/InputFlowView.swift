@@ -3,7 +3,7 @@ import SwiftUI
 struct InputFlowView: View {
     @ObservedObject var viewModel: NudgeViewModel
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {

@@ -9,7 +9,7 @@ struct DashboardView: View {
     @State private var showPaywall = false
     @State private var displayedMonth: Date = Date()
     @State private var selectedDate: Date? = nil
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appReduceMotion) private var reduceMotion
 
     private var lang: LanguageManager { languageManager }
 
@@ -487,6 +487,8 @@ private struct StatPill: View {
     let label: String
     let color: Color
 
+    @Environment(\.appIncreaseContrast) private var increaseContrast
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(value)
@@ -505,7 +507,7 @@ private struct StatPill: View {
                 .fill(AppColors.cardBackground)
                 .overlay(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(color.opacity(0.4), lineWidth: 1.5)
+                        .strokeBorder(color.opacity(increaseContrast ? 0.85 : 0.4), lineWidth: increaseContrast ? 2.5 : 1.5)
                 )
         )
         .accessibilityElement(children: .ignore)
@@ -516,6 +518,7 @@ private struct StatPill: View {
 private struct RecentCard: View {
     let entry: NudgeEntry
     @EnvironmentObject var languageManager: LanguageManager
+    @Environment(\.appIncreaseContrast) private var increaseContrast
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -538,12 +541,19 @@ private struct RecentCard: View {
                 Spacer()
                 ZStack {
                     Circle()
-                        .fill(entry.isCompleted ? Color.green.opacity(0.15) : Color.secondary.opacity(0.08))
+                        .fill(entry.isCompleted ? Color.green.opacity(increaseContrast ? 0.30 : 0.15) : Color.secondary.opacity(increaseContrast ? 0.18 : 0.08))
                         .frame(width: 36, height: 36)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(
+                                    entry.isCompleted ? Color.green.opacity(increaseContrast ? 0.7 : 0) : Color.secondary.opacity(increaseContrast ? 0.4 : 0),
+                                    lineWidth: increaseContrast ? 1.5 : 0
+                                )
+                        )
                     Image(systemName: entry.isCompleted ? "checkmark" : "chevron.right")
                         .font(.caption)
                         .fontWeight(.bold)
-                        .foregroundColor(entry.isCompleted ? .green : .secondary.opacity(0.4))
+                        .foregroundColor(entry.isCompleted ? Color.green.opacity(increaseContrast ? 1.0 : 0.85) : .secondary.opacity(increaseContrast ? 0.7 : 0.4))
                 }
             }
 

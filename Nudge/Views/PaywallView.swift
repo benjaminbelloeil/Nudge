@@ -12,7 +12,7 @@ struct NudgePaywallView: View {
     @State private var isPurchasing = false
     @State private var errorMessage: String?
     @State private var appeared = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appReduceMotion) private var reduceMotion
 
     var body: some View {
         ScrollView {

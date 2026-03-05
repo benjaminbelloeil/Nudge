@@ -13,7 +13,7 @@ struct NudgeResultView: View {
     @State private var showSteps = true
     @State private var showGoal = false
     @State private var shakeStepId: Int? = nil
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appReduceMotion) private var reduceMotion
 
     private var progressFraction: Double {
         guard viewModel.totalStepCount > 0 else { return 0 }

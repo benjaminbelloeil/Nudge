@@ -3,7 +3,7 @@ import SwiftUI
 struct OnboardingView: View {
     var onComplete: () -> Void
     @State private var currentPage = 0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appReduceMotion) private var reduceMotion
 
     private let totalPages = 3
 
@@ -155,7 +155,7 @@ private struct OnboardingPage: View {
     let description: String
 
     @State private var appeared = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 0) {

@@ -12,6 +12,9 @@ struct SettingsView: View {
     @AppStorage("appearanceMode") private var appearanceMode = 0  // 0=system, 1=light, 2=dark
     @AppStorage("notificationsEnabled") private var notificationsEnabled = false
     @AppStorage("largeText") private var largeText = false
+    // Accessibility overrides
+    @AppStorage("acc_reduceMotion") private var reduceMotion = false
+    @AppStorage("acc_increaseContrast") private var increaseContrast = false
     @State private var appeared = false
     @State private var showClearConfirm = false
     @State private var showTips = false
@@ -44,6 +47,11 @@ struct SettingsView: View {
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 12)
                     .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.11), value: appeared)
+
+                accessibilitySection
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 12)
+                    .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.135), value: appeared)
 
                 aboutSection
                     .opacity(appeared ? 1 : 0)
@@ -377,21 +385,63 @@ struct SettingsView: View {
                         }
                 }
             }
+        }
+    }
+
+    // MARK: - Accessibility Section
+
+    private var accessibilitySection: some View {
+        SectionGroup(title: lang["settings.accessibility.section"]) {
+            // Reduce Motion
+            SectionRow {
+                HStack(spacing: 14) {
+                    RowIcon(name: "figure.walk.motion", color: Color(red: 0.45, green: 0.65, blue: 0.95))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(lang["settings.accessibility.reduce_motion"])
+                            .font(.subheadline).fontWeight(.medium)
+                        Text(lang["settings.accessibility.reduce_motion_sub"])
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Toggle("", isOn: $reduceMotion)
+                        .labelsHidden()
+                        .tint(.accentColor)
+                }
+            }
 
             RowDivider()
 
-            // Large Text toggle
+            // Large Text
             SectionRow {
                 HStack(spacing: 14) {
                     RowIcon(name: "textformat.size.larger", color: Color(red: 0.25, green: 0.55, blue: 0.95))
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(lang["settings.preferences.auto_expand"])
+                        Text(lang["settings.accessibility.large_text"])
                             .font(.subheadline).fontWeight(.medium)
-                        Text(lang["settings.preferences.auto_expand_sub"])
+                        Text(lang["settings.accessibility.large_text_sub"])
                             .font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
                     Toggle("", isOn: $largeText)
+                        .labelsHidden()
+                        .tint(.accentColor)
+                }
+            }
+
+            RowDivider()
+
+            // Increase Contrast
+            SectionRow {
+                HStack(spacing: 14) {
+                    RowIcon(name: "circle.lefthalf.striped.horizontal.inverse", color: Color(red: 0.30, green: 0.55, blue: 0.95))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(lang["settings.accessibility.increase_contrast"])
+                            .font(.subheadline).fontWeight(.medium)
+                        Text(lang["settings.accessibility.increase_contrast_sub"])
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Toggle("", isOn: $increaseContrast)
                         .labelsHidden()
                         .tint(.accentColor)
                 }

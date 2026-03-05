@@ -1,6 +1,33 @@
 import SwiftUI
 import UIKit
 
+// MARK: - Custom Accessibility Environment Keys
+
+struct AppReduceMotionKey: EnvironmentKey {
+    static let defaultValue: Bool = false
+}
+struct AppDifferentiateWithoutColorKey: EnvironmentKey {
+    static let defaultValue: Bool = false
+}
+struct AppIncreaseContrastKey: EnvironmentKey {
+    static let defaultValue: Bool = false
+}
+
+extension EnvironmentValues {
+    var appReduceMotion: Bool {
+        get { self[AppReduceMotionKey.self] }
+        set { self[AppReduceMotionKey.self] = newValue }
+    }
+    var appDifferentiateWithoutColor: Bool {
+        get { self[AppDifferentiateWithoutColorKey.self] }
+        set { self[AppDifferentiateWithoutColorKey.self] = newValue }
+    }
+    var appIncreaseContrast: Bool {
+        get { self[AppIncreaseContrastKey.self] }
+        set { self[AppIncreaseContrastKey.self] = newValue }
+    }
+}
+
 // MARK: - Haptic Manager
 
 enum HapticManager {
@@ -43,11 +70,17 @@ enum AppColors {
 // MARK: - Card Modifier
 
 struct CardModifier: ViewModifier {
+    @Environment(\.appIncreaseContrast) private var increaseContrast
+
     func body(content: Content) -> some View {
         content
             .padding(20)
             .background(AppColors.cardBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(increaseContrast ? 0.25 : 0), lineWidth: 1.5)
+            )
     }
 }
 
@@ -61,7 +94,7 @@ extension View {
 
 struct StepIndicator: View {
     let currentStep: InputStep
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: 4) {
@@ -95,7 +128,9 @@ struct MoodChip: View {
     let action: () -> Void
 
     @EnvironmentObject var languageManager: LanguageManager
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appReduceMotion) private var reduceMotion
+    @Environment(\.appDifferentiateWithoutColor) private var differentiateWithoutColor
+    @Environment(\.appIncreaseContrast) private var increaseContrast
 
     var body: some View {
         Button {
@@ -123,11 +158,23 @@ struct MoodChip: View {
             .padding(.vertical, 4)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(isSelected ? Color.accentColor.opacity(0.15) : AppColors.cardBackground)
+                    .fill(isSelected ? Color.accentColor.opacity(increaseContrast ? 0.28 : 0.15) : AppColors.cardBackground)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .strokeBorder(isSelected ? Color.accentColor : Color.secondary.opacity(0.2), lineWidth: 1.5)
+                    .strokeBorder(
+                        isSelected ? Color.accentColor : Color.secondary.opacity(increaseContrast ? 0.45 : 0.2),
+                        lineWidth: increaseContrast ? 2.0 : 1.5
+                    )
+            )
+            .overlay(
+                Group {
+                    if differentiateWithoutColor && isSelected {
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .strokeBorder(Color.accentColor, lineWidth: 3.0)
+                            .padding(1)
+                    }
+                }
             )
         }
         .buttonStyle(.plain)
@@ -147,7 +194,9 @@ struct EnergyDot: View {
     let action: () -> Void
 
     @EnvironmentObject var languageManager: LanguageManager
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appReduceMotion) private var reduceMotion
+    @Environment(\.appDifferentiateWithoutColor) private var differentiateWithoutColor
+    @Environment(\.appIncreaseContrast) private var increaseContrast
 
     var body: some View {
         Button {
@@ -156,8 +205,17 @@ struct EnergyDot: View {
         } label: {
             VStack(spacing: 10) {
                 Circle()
-                    .fill(isActive ? Color.accentColor : Color.secondary.opacity(0.15))
+                    .fill(isActive ? Color.accentColor : Color.secondary.opacity(increaseContrast ? 0.28 : 0.15))
                     .frame(width: 56, height: 56)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(
+                                isActive
+                                    ? (differentiateWithoutColor ? Color.accentColor : Color.clear)
+                                    : Color.secondary.opacity(increaseContrast ? 0.50 : 0),
+                                lineWidth: 2.5
+                            )
+                    )
                     .overlay(
                         Group {
                             if isActive {
@@ -170,7 +228,7 @@ struct EnergyDot: View {
                                 Text(level.shortName)
                                     .font(.title3)
                                     .fontWeight(.bold)
-                                    .foregroundStyle(Color.secondary)
+                                    .foregroundStyle(increaseContrast ? Color.primary : Color.secondary)
                                     .accessibilityHidden(true)
                             }
                         }
@@ -264,7 +322,7 @@ struct HorizontalTimerBar: View {
     let label: String
 
     @State private var animatedProgress: Double = 0
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 6) {
@@ -320,7 +378,7 @@ struct HorizontalTimerBar: View {
 
 struct ShimmerModifier: ViewModifier {
     @State private var phase: CGFloat = -1
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         if reduceMotion {

@@ -48,6 +48,14 @@ struct AppRootView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("appearanceMode") private var appearanceMode = 0
     @AppStorage("largeText") private var largeText = false
+
+    // In-app accessibility overrides
+    @AppStorage("acc_reduceMotion") private var appReduceMotion = false
+    @AppStorage("acc_increaseContrast") private var appIncreaseContrast = false
+
+    // Read system reduce-motion so we can OR it (never disable what the OS already enables)
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var languageManager: LanguageManager
 
@@ -70,6 +78,10 @@ struct AppRootView: View {
             }
         }
         .environment(\.sizeCategory, largeText ? .extraExtraLarge : .large)
+        .environment(\.appReduceMotion, appReduceMotion || systemReduceMotion)
+        .environment(\.appIncreaseContrast, appIncreaseContrast)
+        .environment(\.legibilityWeight, appIncreaseContrast ? .bold : nil)
+        .contrast(appIncreaseContrast ? 1.3 : 1.0)
         .animation(.easeInOut(duration: 0.4), value: hasCompletedOnboarding)
         .preferredColorScheme(colorScheme)
     }
