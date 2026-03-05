@@ -372,6 +372,8 @@ final class LanguageManager: ObservableObject {
             "stats.upgrade":                    "Upgrade",
             // Splash
             "splash.subtitle":                  "Break through friction",
+            // Skeleton
+            "skeleton.generating":              "Generating your nudge",
             // Alerts
             "alert.notif_disabled":             "Notifications Disabled",
             "alert.notif_message":              "Nudge doesn't have permission to send notifications. Enable them in Settings to receive reminders.",
@@ -652,6 +654,8 @@ final class LanguageManager: ObservableObject {
             "stats.upgrade":                    "Mejorar",
             // Splash
             "splash.subtitle":                  "Rompe la fricción",
+            // Skeleton
+            "skeleton.generating":              "Generando tu nudge",
             // Alerts
             "alert.notif_disabled":             "Notificaciones Desactivadas",
             "alert.notif_message":              "Nudge no tiene permiso para enviar notificaciones. Actívalas en Ajustes para recibir recordatorios.",
@@ -932,6 +936,8 @@ final class LanguageManager: ObservableObject {
             "stats.upgrade":                    "Améliorer",
             // Splash
             "splash.subtitle":                  "Brise la friction",
+            // Skeleton
+            "skeleton.generating":              "Génération de ton nudge",
             // Alerts
             "alert.notif_disabled":             "Notifications Désactivées",
             "alert.notif_message":              "Nudge n'a pas la permission d'envoyer des notifications. Activez-les dans Réglages pour recevoir des rappels.",

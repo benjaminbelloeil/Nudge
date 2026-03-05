@@ -379,6 +379,15 @@ struct HorizontalTimerBar: View {
 struct ShimmerModifier: ViewModifier {
     @State private var phase: CGFloat = -1
     @Environment(\.appReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var shimmerOpacity: Double {
+        colorScheme == .dark ? 0.12 : 0.25
+    }
+
+    private var shimmerPeak: Double {
+        colorScheme == .dark ? 0.22 : 0.45
+    }
 
     func body(content: Content) -> some View {
         if reduceMotion {
@@ -390,21 +399,21 @@ struct ShimmerModifier: ViewModifier {
                         LinearGradient(
                             stops: [
                                 .init(color: .clear, location: 0),
-                                .init(color: .white.opacity(0.15), location: 0.3),
-                                .init(color: .white.opacity(0.3), location: 0.5),
-                                .init(color: .white.opacity(0.15), location: 0.7),
+                                .init(color: .white.opacity(shimmerOpacity), location: 0.35),
+                                .init(color: .white.opacity(shimmerPeak), location: 0.5),
+                                .init(color: .white.opacity(shimmerOpacity), location: 0.65),
                                 .init(color: .clear, location: 1.0)
                             ],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
-                        .frame(width: geo.size.width * 2)
+                        .frame(width: geo.size.width * 1.5)
                         .offset(x: phase * geo.size.width * 2)
                         .mask(content)
                     }
                 )
                 .onAppear {
-                    withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: false)) {
+                    withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: false)) {
                         phase = 1
                     }
                 }
@@ -415,10 +424,15 @@ struct ShimmerModifier: ViewModifier {
 struct SkeletonBlock: View {
     var height: CGFloat = 16
     var width: CGFloat? = nil
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var fillOpacity: Double {
+        colorScheme == .dark ? 0.06 : 0.08
+    }
 
     var body: some View {
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
-            .fill(Color.white.opacity(0.06))
+        RoundedRectangle(cornerRadius: 6, style: .continuous)
+            .fill(Color.secondary.opacity(fillOpacity))
             .frame(width: width, height: height)
             .modifier(ShimmerModifier())
     }
