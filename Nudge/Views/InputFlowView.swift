@@ -3,6 +3,7 @@ import SwiftUI
 struct InputFlowView: View {
     @ObservedObject var viewModel: NudgeViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
@@ -23,7 +24,7 @@ struct InputFlowView: View {
                             canAdvance: viewModel.canAdvance,
                             onNext: { viewModel.advance() }
                         )
-                        .transition(transitionForDirection)
+                        .transition(reduceMotion ? .opacity : transitionForDirection)
 
                     case .energy:
                         EnergyInputView(
@@ -31,7 +32,7 @@ struct InputFlowView: View {
                             onNext: { viewModel.advance() },
                             onBack: { viewModel.goBack() }
                         )
-                        .transition(transitionForDirection)
+                        .transition(reduceMotion ? .opacity : transitionForDirection)
 
                     case .mood:
                         MoodInputView(
@@ -42,7 +43,7 @@ struct InputFlowView: View {
                             },
                             onBack: { viewModel.goBack() }
                         )
-                        .transition(transitionForDirection)
+                        .transition(reduceMotion ? .opacity : transitionForDirection)
                     }
                 }
                 .animation(.easeInOut(duration: 0.25), value: viewModel.currentStep)
@@ -58,6 +59,7 @@ struct InputFlowView: View {
                             .font(.caption)
                             .fontWeight(.semibold)
                     }
+                    .accessibilityLabel("Back")
                 }
             }
         }

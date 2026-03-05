@@ -13,6 +13,7 @@ struct NudgeResultView: View {
     @State private var showSteps = true
     @State private var showGoal = false
     @State private var shakeStepId: Int? = nil
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var progressFraction: Double {
         guard viewModel.totalStepCount > 0 else { return 0 }
@@ -115,7 +116,7 @@ struct NudgeResultView: View {
         }
         .background(AppColors.background)
         .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1)) {
+            withAnimation(reduceMotion ? .none : .spring(response: 0.6, dampingFraction: 0.8).delay(0.1)) {
                 cardsAppeared = true
             }
         }
@@ -180,7 +181,7 @@ struct NudgeResultView: View {
         VStack(spacing: 0) {
             // Section header button
             Button {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                withAnimation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.85)) {
                     showSteps.toggle()
                 }
             } label: {
@@ -286,7 +287,7 @@ struct NudgeResultView: View {
     private var goalSection: some View {
         VStack(spacing: 0) {
             Button {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                withAnimation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.85)) {
                     showGoal.toggle()
                 }
             } label: {
@@ -364,6 +365,8 @@ struct NudgeResultView: View {
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
+                .accessibilityLabel(lang("result.save_close"))
+                .accessibilityHint("Saves your progress and closes this nudge")
             }
             .padding(.horizontal, 20)
             .padding(.top, 8)
@@ -421,12 +424,14 @@ private struct ResultStepRow: View {
                     }
                     .modifier(ShakeEffect(shakes: shakeOffset ? 4 : 0))
                     .animation(.default, value: shakeOffset)
+                    .accessibilityHidden(true)
 
                     if !isLast {
                         Rectangle()
                             .fill(isCompleted ? Color.green.opacity(0.3) : Color.secondary.opacity(0.12))
                             .frame(width: 2)
                             .frame(maxHeight: .infinity)
+                            .accessibilityHidden(true)
                     }
                 }
 
@@ -456,6 +461,10 @@ private struct ResultStepRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("Step \(step.id): \(step.title). \(step.action)")
+        .accessibilityValue(isCompleted ? "Completed" : isLocked ? "Locked — complete previous steps first" : "Not yet done")
+        .accessibilityHint(isLocked ? "" : (isCompleted ? "Double tap to mark incomplete" : "Double tap to mark complete"))
+        .accessibilityAddTraits(isLocked ? [.isButton] : (isCompleted ? [.isButton, .isSelected] : .isButton))
     }
 }
 

@@ -12,6 +12,7 @@ struct NudgePaywallView: View {
     @State private var isPurchasing = false
     @State private var errorMessage: String?
     @State private var appeared = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ScrollView {
@@ -81,6 +82,7 @@ struct NudgePaywallView: View {
                 .frame(height: 130)
                 .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 .padding(.horizontal, 20)
+                .accessibilityHidden(true)
 
                 // MARK: - Title
                 VStack(spacing: 4) {
@@ -154,10 +156,14 @@ struct NudgePaywallView: View {
                         .foregroundColor(Color(UIColor.systemBackground))
                     }
                     .disabled(selectedPackage == nil || isPurchasing)
+                    .accessibilityLabel(isPurchasing ? "Processing purchase" : lang["paywall.cta"])
+                    .accessibilityHint(selectedPackage == nil ? "Select a plan first" : "Purchases the selected subscription")
 
                     Button(lang["paywall.restore"]) { restore() }
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .accessibilityLabel(lang["paywall.restore"])
+                        .accessibilityHint("Restores previously purchased subscriptions")
 
                     // Required subscription disclosure (App Store guidelines)
                     Text(lang["paywall.disclosure"])
@@ -174,7 +180,7 @@ struct NudgePaywallView: View {
         }
         .background(AppColors.background.ignoresSafeArea())
         .onAppear {
-            withAnimation(.spring(response: 0.8, dampingFraction: 0.75).delay(0.05)) {
+            withAnimation(reduceMotion ? .none : .spring(response: 0.8, dampingFraction: 0.75).delay(0.05)) {
                 appeared = true
             }
         }
@@ -198,6 +204,7 @@ struct NudgePaywallView: View {
                 .frame(width: 38, height: 38)
                 .background(Color.accentColor.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -281,6 +288,9 @@ struct NudgePaywallView: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("\(pkg.storeProduct.localizedTitle), \(isYearly ? pkg.localizedPriceString + " per year" : pkg.localizedPriceString + " per month")\(isYearly ? ", best value" : "")")
+        .accessibilityHint(isSelected ? "Currently selected" : "Double tap to select this plan")
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
     }
 
     // MARK: - Actions

@@ -9,6 +9,7 @@ struct DashboardView: View {
     @State private var showPaywall = false
     @State private var displayedMonth: Date = Date()
     @State private var selectedDate: Date? = nil
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var lang: LanguageManager { languageManager }
 
@@ -39,6 +40,8 @@ struct DashboardView: View {
                         .font(.body)
                         .foregroundColor(.accentColor)
                 }
+                .accessibilityLabel(subscriptionManager.isProUser ? "Manage subscription" : "Upgrade to Nudge Pro")
+                .accessibilityHint(subscriptionManager.isProUser ? "Opens subscription management" : "Opens upgrade options")
             }
             ToolbarItem(placement: .topBarLeading) {
                 NavigationLink(value: NavigationDestination.settings) {
@@ -46,10 +49,11 @@ struct DashboardView: View {
                         .font(.body)
                         .foregroundColor(.secondary)
                 }
+                .accessibilityLabel("Settings")
             }
         }
         .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.05)) {
+            withAnimation(reduceMotion ? .none : .spring(response: 0.6, dampingFraction: 0.8).delay(0.05)) {
                 appeared = true
             }
         }
@@ -98,6 +102,7 @@ struct DashboardView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(lang["dashboard.new_nudge"])
                         .font(.title3)
+                        .accessibilityHidden(true)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                     Text(lang["dashboard.new_nudge_subtitle"])
@@ -117,6 +122,8 @@ struct DashboardView: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(lang["dashboard.new_nudge"])
+        .accessibilityHint(subscriptionManager.canCreateNudge() ? "Double tap to start a new nudge" : "Double tap to upgrade to Pro")
         .opacity(appeared ? 1 : 0)
         .offset(y: appeared ? 0 : 14)
         .sheet(isPresented: $showPaywall) {
@@ -241,6 +248,7 @@ struct DashboardView: View {
                             .background(Color.accentColor.opacity(0.1))
                             .clipShape(Circle())
                     }
+                    .accessibilityLabel("Previous month")
 
                     Spacer()
 
@@ -264,6 +272,7 @@ struct DashboardView: View {
                             .background(Color.accentColor.opacity(0.1))
                             .clipShape(Circle())
                     }
+                    .accessibilityLabel("Next month")
                 }
 
                 // Weekday headers
@@ -499,6 +508,8 @@ private struct StatPill: View {
                         .strokeBorder(color.opacity(0.4), lineWidth: 1.5)
                 )
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(label): \(value)")
     }
 }
 
@@ -555,6 +566,9 @@ private struct RecentCard: View {
         .padding(18)
         .background(AppColors.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(entry.taskDescription.replacingOccurrences(of: "\n", with: " ")). \(entry.isCompleted ? "Completed" : "In progress"). \(entry.stepsCompleted) of \(entry.totalSteps) steps done")
+        .accessibilityHint("Double tap to open")
     }
 }
 

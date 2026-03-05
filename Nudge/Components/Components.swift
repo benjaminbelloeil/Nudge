@@ -61,6 +61,7 @@ extension View {
 
 struct StepIndicator: View {
     let currentStep: InputStep
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: 4) {
@@ -79,7 +80,10 @@ struct StepIndicator: View {
             }
         }
         .padding(.horizontal, 20)
-        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: currentStep)
+        .animation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8), value: currentStep)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Step \(currentStep.rawValue + 1) of \(InputStep.allCases.count)")
+        .accessibilityValue(currentStep.rawValue == InputStep.allCases.count - 1 ? "Final step" : "")
     }
 }
 
@@ -91,6 +95,7 @@ struct MoodChip: View {
     let action: () -> Void
 
     @EnvironmentObject var languageManager: LanguageManager
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Button {
@@ -100,10 +105,18 @@ struct MoodChip: View {
             HStack(spacing: 10) {
                 Text(mood.emoji)
                     .font(.title3)
+                    .accessibilityHidden(true)
                 Text(languageManager["mood.\(mood.rawValue)"])
                     .font(.body)
                     .fontWeight(isSelected ? .semibold : .regular)
                     .lineLimit(1)
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(.accentColor)
+                        .accessibilityHidden(true)
+                }
             }
             .frame(maxWidth: .infinity)
             .frame(minHeight: 56)
@@ -118,10 +131,11 @@ struct MoodChip: View {
             )
         }
         .buttonStyle(.plain)
-        .scaleEffect(isSelected ? 1.02 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+        .scaleEffect(isSelected ? (reduceMotion ? 1.0 : 1.02) : 1.0)
+        .animation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
         .accessibilityLabel("\(languageManager["mood.\(mood.rawValue)"]) mood")
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityHint(isSelected ? "Selected" : "Double tap to select")
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
     }
 }
 
@@ -133,6 +147,7 @@ struct EnergyDot: View {
     let action: () -> Void
 
     @EnvironmentObject var languageManager: LanguageManager
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Button {
@@ -144,10 +159,21 @@ struct EnergyDot: View {
                     .fill(isActive ? Color.accentColor : Color.secondary.opacity(0.15))
                     .frame(width: 56, height: 56)
                     .overlay(
-                        Text(level.shortName)
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundStyle(isActive ? .white : .secondary)
+                        Group {
+                            if isActive {
+                                Image(systemName: "checkmark")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                    .accessibilityHidden(true)
+                            } else {
+                                Text(level.shortName)
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(Color.secondary)
+                                    .accessibilityHidden(true)
+                            }
+                        }
                     )
 
                 Text(languageManager["energy.name.\(level.rawValue)"])
@@ -157,10 +183,11 @@ struct EnergyDot: View {
             }
         }
         .buttonStyle(.plain)
-        .scaleEffect(isActive ? 1.05 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isActive)
-        .accessibilityLabel("Energy level \(languageManager["energy.name.\(level.rawValue)"])")
-        .accessibilityAddTraits(isActive ? .isSelected : [])
+        .scaleEffect(isActive ? (reduceMotion ? 1.0 : 1.05) : 1.0)
+        .animation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.7), value: isActive)
+        .accessibilityLabel("Energy level: \(languageManager["energy.name.\(level.rawValue)"])")
+        .accessibilityHint(isActive ? "Currently selected" : "Double tap to select")
+        .accessibilityAddTraits(isActive ? [.isButton, .isSelected] : .isButton)
     }
 }
 
@@ -237,6 +264,7 @@ struct HorizontalTimerBar: View {
     let label: String
 
     @State private var animatedProgress: Double = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 6) {
@@ -272,13 +300,16 @@ struct HorizontalTimerBar: View {
                     .foregroundColor(.accentColor)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
+        .accessibilityValue("\(Int(progress * 100)) percent complete")
         .onAppear {
-            withAnimation(.easeInOut(duration: 0.6)) {
+            withAnimation(reduceMotion ? .none : .easeInOut(duration: 0.6)) {
                 animatedProgress = progress
             }
         }
         .onChange(of: progress) { newValue in
-            withAnimation(.easeInOut(duration: 0.35)) {
+            withAnimation(reduceMotion ? .none : .easeInOut(duration: 0.35)) {
                 animatedProgress = newValue
             }
         }
@@ -289,32 +320,37 @@ struct HorizontalTimerBar: View {
 
 struct ShimmerModifier: ViewModifier {
     @State private var phase: CGFloat = -1
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
-        content
-            .overlay(
-                GeometryReader { geo in
-                    LinearGradient(
-                        stops: [
-                            .init(color: .clear, location: 0),
-                            .init(color: .white.opacity(0.15), location: 0.3),
-                            .init(color: .white.opacity(0.3), location: 0.5),
-                            .init(color: .white.opacity(0.15), location: 0.7),
-                            .init(color: .clear, location: 1.0)
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                    .frame(width: geo.size.width * 2)
-                    .offset(x: phase * geo.size.width * 2)
-                    .mask(content)
+        if reduceMotion {
+            content
+        } else {
+            content
+                .overlay(
+                    GeometryReader { geo in
+                        LinearGradient(
+                            stops: [
+                                .init(color: .clear, location: 0),
+                                .init(color: .white.opacity(0.15), location: 0.3),
+                                .init(color: .white.opacity(0.3), location: 0.5),
+                                .init(color: .white.opacity(0.15), location: 0.7),
+                                .init(color: .clear, location: 1.0)
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                        .frame(width: geo.size.width * 2)
+                        .offset(x: phase * geo.size.width * 2)
+                        .mask(content)
+                    }
+                )
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: false)) {
+                        phase = 1
+                    }
                 }
-            )
-            .onAppear {
-                withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: false)) {
-                    phase = 1
-                }
-            }
+        }
     }
 }
 
@@ -344,6 +380,9 @@ struct ProgressCapsule: View {
                     .frame(height: 4)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Progress")
+        .accessibilityValue("\(completed) of \(total) steps completed")
     }
 }
 

@@ -3,6 +3,7 @@ import SwiftUI
 struct OnboardingView: View {
     var onComplete: () -> Void
     @State private var currentPage = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let totalPages = 3
 
@@ -14,7 +15,7 @@ struct OnboardingView: View {
                 // MARK: - Top Bar
                 HStack(alignment: .center, spacing: 12) {
                     Button {
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                        withAnimation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8)) {
                             currentPage -= 1
                         }
                     } label: {
@@ -23,9 +24,10 @@ struct OnboardingView: View {
                             .fontWeight(.semibold)
                             .foregroundColor(.primary)
                     }
+                    .accessibilityLabel("Back")
                     .opacity(currentPage > 0 ? 1 : 0)
                     .disabled(currentPage == 0)
-                    .animation(.easeInOut(duration: 0.25), value: currentPage)
+                    .animation(reduceMotion ? .none : .easeInOut(duration: 0.25), value: currentPage)
 
                     // Progress bars
                     HStack(spacing: 4) {
@@ -43,7 +45,9 @@ struct OnboardingView: View {
                             .frame(height: 3)
                         }
                     }
-                    .animation(.spring(response: 0.6, dampingFraction: 0.8), value: currentPage)
+                    .animation(reduceMotion ? .none : .spring(response: 0.6, dampingFraction: 0.8), value: currentPage)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Page \(currentPage + 1) of \(totalPages)")
 
                     Button {
                         onComplete()
@@ -53,6 +57,7 @@ struct OnboardingView: View {
                             .fontWeight(.medium)
                             .foregroundColor(.secondary)
                     }
+                    .accessibilityLabel("Skip onboarding")
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
@@ -98,7 +103,7 @@ struct OnboardingView: View {
                 // MARK: - Bottom Button (at very bottom with safe area)
                 Button(action: {
                     if currentPage < totalPages - 1 {
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                        withAnimation(reduceMotion ? .none : .spring(response: 0.5, dampingFraction: 0.8)) {
                             currentPage += 1
                         }
                     } else {
@@ -150,6 +155,7 @@ private struct OnboardingPage: View {
     let description: String
 
     @State private var appeared = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 0) {
@@ -257,7 +263,7 @@ private struct OnboardingPage: View {
         }
         .onAppear {
             appeared = false
-            withAnimation(.spring(response: 0.8, dampingFraction: 0.75).delay(0.05)) {
+            withAnimation(reduceMotion ? .none : .spring(response: 0.8, dampingFraction: 0.75).delay(0.05)) {
                 appeared = true
             }
         }
