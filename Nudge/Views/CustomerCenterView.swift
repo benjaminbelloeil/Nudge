@@ -3,7 +3,10 @@ import RevenueCat
 
 struct CustomerCenterView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @EnvironmentObject var languageManager: LanguageManager
     @Environment(\.dismiss) private var dismiss
+
+    private var lang: LanguageManager { languageManager }
 
     @State private var isRestoring = false
     @State private var alertMessage: String? = nil
@@ -24,18 +27,18 @@ struct CustomerCenterView: View {
             .padding(.bottom, 32)
         }
         .background(AppColors.background.ignoresSafeArea())
-        .navigationTitle("Subscription")
+        .navigationTitle(lang["customer.title"])
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             withAnimation(.spring(response: 0.7, dampingFraction: 0.8).delay(0.05)) {
                 appeared = true
             }
         }
-        .alert("Info", isPresented: .init(
+        .alert(lang["alert.info"], isPresented: .init(
             get: { alertMessage != nil },
             set: { if !$0 { alertMessage = nil } }
         )) {
-            Button("OK") { alertMessage = nil }
+            Button(lang["alert.ok"]) { alertMessage = nil }
         } message: {
             Text(alertMessage ?? "")
         }
@@ -92,13 +95,13 @@ struct CustomerCenterView: View {
 
                 VStack(spacing: 6) {
                     HStack(spacing: 8) {
-                        Text(subscriptionManager.isProUser ? "Nudge Pro" : "Free Plan")
+                        Text(subscriptionManager.isProUser ? lang["settings.account.pro_badge"] : lang["settings.account.free_badge"])
                             .font(.title2)
                             .fontWeight(.black)
                             .foregroundColor(.white)
 
                         if subscriptionManager.isProUser {
-                            Text("ACTIVE")
+                            Text(lang["badge.active"])
                                 .font(.system(size: 9, weight: .heavy))
                                 .foregroundColor(.white.opacity(0.9))
                                 .padding(.horizontal, 7)
@@ -109,8 +112,8 @@ struct CustomerCenterView: View {
                     }
 
                     Text(subscriptionManager.isProUser
-                         ? "You have full, unlimited access"
-                         : "\(SubscriptionManager.freeNudgesPerWeek) nudges per week · Free tier")
+                         ? lang["customer.full_access"]
+                         : "\(SubscriptionManager.freeNudgesPerWeek) \(lang["customer.free_tier"])")
                         .font(.subheadline)
                         .foregroundColor(.white.opacity(0.75))
                 }
@@ -132,14 +135,14 @@ struct CustomerCenterView: View {
 
             let productID = entitlement.productIdentifier
             let isYearly = productID.lowercased().contains("year") || productID.lowercased().contains("annual")
-            let planName = isYearly ? "Annual Plan" : "Monthly Plan"
-            let renewalPeriod = isYearly ? "Annually" : "Monthly"
+            let planName = isYearly ? lang["customer.annual_plan"] : lang["customer.monthly_plan"]
+            let renewalPeriod = isYearly ? lang["customer.annually"] : lang["customer.monthly"]
             let nudgesThisWeek = SubscriptionManager.shared.nudgesCreatedThisWeek()
 
             VStack(spacing: 0) {
                 // Header
                 HStack {
-                    Text("PLAN DETAILS")
+                    Text(lang["customer.plan_details"])
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundStyle(.secondary)
@@ -153,40 +156,40 @@ struct CustomerCenterView: View {
                 Divider().padding(.horizontal, 18)
 
                 VStack(spacing: 0) {
-                    PlanDetailRow(label: "Plan", value: planName, badge: isYearly ? "BEST VALUE" : nil)
+                    PlanDetailRow(label: lang["customer.plan"], value: planName, badge: isYearly ? lang["paywall.best_value"] : nil)
 
                     Divider().padding(.horizontal, 18)
 
-                    PlanDetailRow(label: "Status", value: "Active", badge: nil)
+                    PlanDetailRow(label: lang["customer.status"], value: lang["customer.active"], badge: nil)
 
                     Divider().padding(.horizontal, 18)
 
-                    PlanDetailRow(label: "Billing cycle", value: renewalPeriod, badge: nil)
+                    PlanDetailRow(label: lang["customer.billing_cycle"], value: renewalPeriod, badge: nil)
 
                     if let purchaseDate = entitlement.latestPurchaseDate {
                         Divider().padding(.horizontal, 18)
-                        PlanDetailRow(label: "Started", value: purchaseDate.formatted(date: .long, time: .omitted), badge: nil)
+                        PlanDetailRow(label: lang["customer.started"], value: purchaseDate.formatted(date: .long, time: .omitted), badge: nil)
                     }
 
                     if let expirationDate = entitlement.expirationDate {
                         Divider().padding(.horizontal, 18)
-                        PlanDetailRow(label: "Next renewal", value: expirationDate.formatted(date: .long, time: .omitted), badge: nil)
+                        PlanDetailRow(label: lang["customer.next_renewal"], value: expirationDate.formatted(date: .long, time: .omitted), badge: nil)
                     }
 
                     Divider().padding(.horizontal, 18)
 
-                    PlanDetailRow(label: "Nudges this week", value: "\(nudgesThisWeek)", badge: nil)
+                    PlanDetailRow(label: lang["customer.nudges_week"], value: "\(nudgesThisWeek)", badge: nil)
 
                     Divider().padding(.horizontal, 18)
 
-                    PlanDetailRow(label: "Total nudges", value: "\(PersistenceManager.shared.entries.count)", badge: nil)
+                    PlanDetailRow(label: lang["customer.total_nudges"], value: "\(PersistenceManager.shared.entries.count)", badge: nil)
 
                     if let managementURL = info.managementURL {
                         Divider().padding(.horizontal, 18)
 
                         Link(destination: managementURL) {
                             HStack {
-                                Text("Manage in App Store")
+                                Text(lang["customer.manage_appstore"])
                                     .font(.subheadline)
                                     .foregroundColor(.accentColor)
                                     .fontWeight(.medium)
@@ -225,11 +228,11 @@ struct CustomerCenterView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Upgrade to Pro")
+                            Text(lang["customer.upgrade"])
                                 .font(.subheadline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
-                            Text("Unlimited nudges, full insights")
+                            Text(lang["customer.upgrade_sub"])
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.75))
                         }
@@ -264,7 +267,7 @@ struct CustomerCenterView: View {
                         .background(Color.secondary.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
-                    Text("Restore Purchases")
+                    Text(lang["paywall.restore"])
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.primary)
@@ -298,9 +301,9 @@ struct CustomerCenterView: View {
                 try await subscriptionManager.restorePurchases()
                 isRestoring = false
                 if subscriptionManager.isProUser {
-                    alertMessage = "Your Pro subscription has been restored!"
+                    alertMessage = lang["paywall.restore_success"]
                 } else {
-                    alertMessage = "No active subscription found."
+                    alertMessage = lang["paywall.restore_fail"]
                 }
             } catch {
                 isRestoring = false

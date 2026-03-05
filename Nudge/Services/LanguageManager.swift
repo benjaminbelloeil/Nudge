@@ -74,7 +74,13 @@ final class LanguageManager: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 Task { @MainActor [weak self] in
+                    let oldLang = self?.language
                     self?.syncWithSystemLocale()
+                    // Reschedule notifications if language actually changed
+                    if self?.language != oldLang,
+                       UserDefaults.standard.bool(forKey: "notificationsEnabled") {
+                        await NotificationManager.shared.scheduleAll()
+                    }
                 }
             }
             .store(in: &cancellables)
@@ -364,6 +370,41 @@ final class LanguageManager: ObservableObject {
             "stats.unlock_title":               "Unlock Full Insights",
             "stats.unlock_body":                "Upgrade to Pro to see all your\ntrends, moods, and patterns.",
             "stats.upgrade":                    "Upgrade",
+            // Splash
+            "splash.subtitle":                  "Break through friction",
+            // Alerts
+            "alert.notif_disabled":             "Notifications Disabled",
+            "alert.notif_message":              "Nudge doesn't have permission to send notifications. Enable them in Settings to receive reminders.",
+            "alert.open_settings":              "Open Settings",
+            "alert.ok":                         "OK",
+            "alert.info":                       "Info",
+            // Status badges
+            "badge.active":                     "ACTIVE",
+            // Customer Center
+            "customer.title":                   "Subscription",
+            "customer.full_access":             "You have full, unlimited access",
+            "customer.free_tier":               "nudges per week · Free tier",
+            "customer.plan_details":            "PLAN DETAILS",
+            "customer.annual_plan":             "Annual Plan",
+            "customer.monthly_plan":            "Monthly Plan",
+            "customer.status":                  "Status",
+            "customer.active":                  "Active",
+            "customer.billing_cycle":           "Billing cycle",
+            "customer.annually":                "Annually",
+            "customer.monthly":                 "Monthly",
+            "customer.started":                 "Started",
+            "customer.next_renewal":            "Next renewal",
+            "customer.nudges_week":             "Nudges this week",
+            "customer.total_nudges":            "Total nudges",
+            "customer.manage_appstore":         "Manage in App Store",
+            "customer.upgrade":                 "Upgrade to Pro",
+            "customer.upgrade_sub":             "Unlimited nudges, full insights",
+            "customer.plan":                    "Plan",
+            // Paywall extras
+            "paywall.restoring":                "Restoring…",
+            // Accessibility
+            "a11y.completed":                   "Completed",
+            "a11y.in_progress":                 "In progress",
         ],
 
         // ─────────────────────────────────────────────────────────────────
@@ -609,6 +650,41 @@ final class LanguageManager: ObservableObject {
             "stats.unlock_title":               "Desbloquea Estadísticas Completas",
             "stats.unlock_body":                "Mejora a Pro para ver todas tus\ntendencias, estados y patrones.",
             "stats.upgrade":                    "Mejorar",
+            // Splash
+            "splash.subtitle":                  "Rompe la fricción",
+            // Alerts
+            "alert.notif_disabled":             "Notificaciones Desactivadas",
+            "alert.notif_message":              "Nudge no tiene permiso para enviar notificaciones. Actívalas en Ajustes para recibir recordatorios.",
+            "alert.open_settings":              "Abrir Ajustes",
+            "alert.ok":                         "OK",
+            "alert.info":                       "Info",
+            // Status badges
+            "badge.active":                     "ACTIVO",
+            // Customer Center
+            "customer.title":                   "Suscripción",
+            "customer.full_access":             "Tienes acceso completo e ilimitado",
+            "customer.free_tier":               "nudges por semana · Plan gratuito",
+            "customer.plan_details":            "DETALLES DEL PLAN",
+            "customer.annual_plan":             "Plan Anual",
+            "customer.monthly_plan":            "Plan Mensual",
+            "customer.status":                  "Estado",
+            "customer.active":                  "Activo",
+            "customer.billing_cycle":           "Ciclo de facturación",
+            "customer.annually":                "Anual",
+            "customer.monthly":                 "Mensual",
+            "customer.started":                 "Inicio",
+            "customer.next_renewal":            "Próxima renovación",
+            "customer.nudges_week":             "Nudges esta semana",
+            "customer.total_nudges":            "Total de nudges",
+            "customer.manage_appstore":         "Gestionar en App Store",
+            "customer.upgrade":                 "Mejorar a Pro",
+            "customer.upgrade_sub":             "Nudges ilimitados, estadísticas completas",
+            "customer.plan":                    "Plan",
+            // Paywall extras
+            "paywall.restoring":                "Restaurando…",
+            // Accessibility
+            "a11y.completed":                   "Completado",
+            "a11y.in_progress":                 "En progreso",
         ],
 
         // ─────────────────────────────────────────────────────────────────
@@ -854,6 +930,41 @@ final class LanguageManager: ObservableObject {
             "stats.unlock_title":               "Débloquez les Statistiques Complètes",
             "stats.unlock_body":                "Passez à Pro pour voir toutes vos\ntendances, humeurs et patterns.",
             "stats.upgrade":                    "Améliorer",
+            // Splash
+            "splash.subtitle":                  "Brise la friction",
+            // Alerts
+            "alert.notif_disabled":             "Notifications Désactivées",
+            "alert.notif_message":              "Nudge n'a pas la permission d'envoyer des notifications. Activez-les dans Réglages pour recevoir des rappels.",
+            "alert.open_settings":              "Ouvrir Réglages",
+            "alert.ok":                         "OK",
+            "alert.info":                       "Info",
+            // Status badges
+            "badge.active":                     "ACTIF",
+            // Customer Center
+            "customer.title":                   "Abonnement",
+            "customer.full_access":             "Vous avez un accès complet et illimité",
+            "customer.free_tier":               "nudges par semaine · Plan gratuit",
+            "customer.plan_details":            "DÉTAILS DU PLAN",
+            "customer.annual_plan":             "Plan Annuel",
+            "customer.monthly_plan":            "Plan Mensuel",
+            "customer.status":                  "Statut",
+            "customer.active":                  "Actif",
+            "customer.billing_cycle":           "Cycle de facturation",
+            "customer.annually":                "Annuel",
+            "customer.monthly":                 "Mensuel",
+            "customer.started":                 "Début",
+            "customer.next_renewal":            "Prochain renouvellement",
+            "customer.nudges_week":             "Nudges cette semaine",
+            "customer.total_nudges":            "Total de nudges",
+            "customer.manage_appstore":         "Gérer dans l'App Store",
+            "customer.upgrade":                 "Passer à Pro",
+            "customer.upgrade_sub":             "Nudges illimités, statistiques complètes",
+            "customer.plan":                    "Plan",
+            // Paywall extras
+            "paywall.restoring":                "Restauration…",
+            // Accessibility
+            "a11y.completed":                   "Complété",
+            "a11y.in_progress":                 "En cours",
         ],
     ]
     // swiftlint:enable line_length

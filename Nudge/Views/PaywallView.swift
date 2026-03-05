@@ -168,7 +168,7 @@ struct NudgePaywallView: View {
                             if isRestoring {
                                 HStack(spacing: 6) {
                                     ProgressView().tint(.secondary).scaleEffect(0.8)
-                                    Text("Restoring…").font(.caption).foregroundColor(.secondary)
+                                    Text(lang["paywall.restoring"]).font(.caption).foregroundColor(.secondary)
                                 }
                             } else {
                                 Text(lang["paywall.restore"]).font(.caption).foregroundColor(.secondary)
@@ -193,11 +193,11 @@ struct NudgePaywallView: View {
             .padding(.top, 24)
         }
         .background(AppColors.background.ignoresSafeArea())
-        .alert("Restore Purchases", isPresented: .init(
+        .alert(lang["paywall.restore"], isPresented: .init(
             get: { restoreMessage != nil },
             set: { if !$0 { restoreMessage = nil } }
         )) {
-            Button("OK") { restoreMessage = nil }
+            Button(lang["alert.ok"]) { restoreMessage = nil }
         } message: {
             Text(restoreMessage ?? "")
         }

@@ -22,7 +22,6 @@ struct SettingsView: View {
     @State private var exportURL: URL? = nil
     @State private var showExport = false
     @State private var showNotificationsDeniedAlert = false
-    @State private var showLanguageDropdown = false
 
     private var lang: LanguageManager { languageManager }
 
@@ -107,11 +106,11 @@ struct SettingsView: View {
                 ShareSheet(activityItems: [url])
             }
         }
-        .alert("Notifications Disabled", isPresented: $showNotificationsDeniedAlert) {
-            Button("Open Settings") { NotificationManager.shared.openSystemSettings() }
-            Button("Cancel", role: .cancel) {}
+        .alert(lang["alert.notif_disabled"], isPresented: $showNotificationsDeniedAlert) {
+            Button(lang["alert.open_settings"]) { NotificationManager.shared.openSystemSettings() }
+            Button(lang["common.cancel"], role: .cancel) {}
         } message: {
-            Text("Nudge doesn't have permission to send notifications. Enable them in Settings to receive reminders.")
+            Text(lang["alert.notif_message"])
         }
     }
 
@@ -195,7 +194,7 @@ struct SettingsView: View {
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         Spacer()
-                        Text("ACTIVE")
+                        Text(lang["badge.active"])
                             .font(.system(size: 10, weight: .heavy))
                             .foregroundColor(.green)
                             .padding(.horizontal, 8).padding(.vertical, 3)
@@ -293,88 +292,30 @@ struct SettingsView: View {
             RowDivider()
 
             // Language
-            Button {
-                withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
-                    showLanguageDropdown.toggle()
-                }
-                if hapticsEnabled { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
-            } label: {
-                SectionRow {
-                    HStack(spacing: 14) {
-                        RowIcon(name: "globe", color: Color(red: 0.40, green: 0.45, blue: 0.90))
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(lang["settings.language.section"])
-                                .font(.subheadline).fontWeight(.medium)
-                                .foregroundColor(.primary)
-                            Text(languageManager.language.displayName)
-                                .font(.caption).foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
-                        Spacer()
-                        HStack(spacing: 6) {
-                            Text(languageManager.language.displayName)
-                                .font(.subheadline).fontWeight(.medium)
-                                .foregroundColor(.primary)
-                                .lineLimit(1)
-                                .id("lang-" + languageManager.language.rawValue)
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(.secondary)
-                                .rotationEffect(.degrees(showLanguageDropdown ? 180 : 0))
-                        }
-                    }
-                }
-            }
-            .buttonStyle(.plain)
-
-            if showLanguageDropdown {
-                VStack(spacing: 0) {
-                    Divider().padding(.leading, 66)
-                    ForEach(Array(AppLanguage.allCases.enumerated()), id: \.element.id) { index, appLang in
-                        let isSelected = languageManager.language == appLang
-                        let indigo = Color(red: 0.40, green: 0.45, blue: 0.90)
-                        Button {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                                languageManager.language = appLang
-                                showLanguageDropdown = false
-                            }
+            SectionRow {
+                HStack(spacing: 14) {
+                    RowIcon(name: "globe", color: Color(red: 0.40, green: 0.45, blue: 0.90))
+                    Text(lang["settings.language.section"])
+                        .font(.subheadline).fontWeight(.medium)
+                        .foregroundColor(.primary)
+                    Spacer()
+                    Picker("", selection: Binding(
+                        get: { languageManager.language },
+                        set: { newLang in
+                            languageManager.language = newLang
                             if hapticsEnabled { UIImpactFeedbackGenerator(style: .medium).impactOccurred() }
-                        } label: {
-                            SectionRow {
-                                HStack(spacing: 14) {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 9, style: .continuous)
-                                            .fill(isSelected ? indigo : indigo.opacity(0.10))
-                                            .frame(width: 36, height: 36)
-                                        Text(appLang.rawValue.uppercased())
-                                            .font(.system(size: 13, weight: .bold))
-                                            .foregroundColor(isSelected ? .white : indigo)
-                                    }
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(appLang.displayName)
-                                            .font(.subheadline)
-                                            .fontWeight(isSelected ? .semibold : .medium)
-                                            .foregroundColor(.primary)
-                                        Text(appLang.rawValue.uppercased())
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                                        .font(.body)
-                                        .foregroundColor(isSelected ? indigo : Color.secondary.opacity(0.25))
-                                }
+                            if notificationsEnabled {
+                                Task { await NotificationManager.shared.scheduleAll() }
                             }
-                            .background(isSelected ? indigo.opacity(0.07) : Color.clear)
                         }
-                        .buttonStyle(.plain)
-                        if index < AppLanguage.allCases.count - 1 {
-                            Divider().padding(.leading, 66)
+                    )) {
+                        ForEach(AppLanguage.allCases) { appLang in
+                            Text(appLang.rawValue.uppercased()).tag(appLang)
                         }
                     }
+                    .pickerStyle(.menu)
+                    .tint(.primary)
                 }
-                .transition(.opacity)
-                .clipped()
             }
         }
     }

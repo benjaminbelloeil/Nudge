@@ -177,7 +177,7 @@ private struct SplashView: View {
                     .foregroundColor(.white)
                     .opacity(textOpacity)
 
-                Text("Break through friction")
+                Text(LanguageManager.shared["splash.subtitle"])
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundColor(.white.opacity(0.7))

@@ -151,7 +151,7 @@ private struct HistoryCard: View {
         .background(AppColors.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(entry.taskDescription.replacingOccurrences(of: "\n", with: " ")). \(entry.isCompleted ? "Completed" : "In progress"). \(entry.stepsCompleted) of \(entry.totalSteps) steps done")
+        .accessibilityLabel("\(entry.taskDescription.replacingOccurrences(of: "\n", with: " ")). \(entry.isCompleted ? LanguageManager.shared["a11y.completed"] : LanguageManager.shared["a11y.in_progress"]). \(entry.stepsCompleted) of \(entry.totalSteps) steps done")
         .accessibilityHint("Double tap to open")
     }
 }

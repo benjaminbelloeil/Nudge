@@ -38,6 +38,8 @@ struct ContentView: View {
                             .environmentObject(languageManager)
                     case .customerCenter:
                         CustomerCenterView()
+                            .environmentObject(languageManager)
+                            .environmentObject(subscriptionManager)
                     case .settings:
                         SettingsView()
                             .environmentObject(historyViewModel)
