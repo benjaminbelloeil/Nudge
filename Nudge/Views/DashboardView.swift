@@ -85,6 +85,8 @@ struct DashboardView: View {
         .padding(.top, 8)
         .opacity(appeared ? 1 : 0)
         .offset(y: appeared ? 0 : 10)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(greetingText). \(lang["dashboard.header_line1"]) \(lang["dashboard.header_line2"]) \(lang["dashboard.header_line3"])")
     }
 
     // MARK: - New Nudge
@@ -199,6 +201,8 @@ struct DashboardView: View {
                 .padding(.horizontal, 20)
                 .background(AppColors.cardBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("\(lang["dashboard.no_nudges_title"]). \(lang["dashboard.no_nudges_subtitle"])")
             } else {
                 ForEach(historyViewModel.entries.prefix(3)) { entry in
                     Button {
@@ -235,7 +239,7 @@ struct DashboardView: View {
                 // Month navigation
                 HStack {
                     Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        withAnimation(reduceMotion ? .none : .easeInOut(duration: 0.2)) {
                             displayedMonth = Calendar.current.date(byAdding: .month, value: -1, to: displayedMonth) ?? displayedMonth
                             selectedDate = nil
                         }
@@ -259,7 +263,7 @@ struct DashboardView: View {
                     Spacer()
 
                     Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        withAnimation(reduceMotion ? .none : .easeInOut(duration: 0.2)) {
                             displayedMonth = Calendar.current.date(byAdding: .month, value: 1, to: displayedMonth) ?? displayedMonth
                             selectedDate = nil
                         }
@@ -298,7 +302,7 @@ struct DashboardView: View {
 
                             Button {
                                 HapticManager.selection()
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                withAnimation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.8)) {
                                     if isSelected {
                                         selectedDate = nil
                                     } else {
@@ -615,6 +619,8 @@ private struct NavCard: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(color)
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title). \(subtitle)")
     }
 }
 

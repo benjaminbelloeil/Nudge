@@ -59,6 +59,10 @@ struct AppRootView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var languageManager: LanguageManager
 
+    @State private var showSplash = true
+
+    private var reduceMotion: Bool { appReduceMotion || systemReduceMotion }
+
     private var colorScheme: ColorScheme? {
         switch appearanceMode {
         case 1: return .light
@@ -68,21 +72,127 @@ struct AppRootView: View {
     }
 
     var body: some View {
-        Group {
-            if hasCompletedOnboarding {
-                ContentView()
-            } else {
-                OnboardingView(onComplete: {
-                    hasCompletedOnboarding = true
-                })
+        ZStack {
+            Group {
+                if hasCompletedOnboarding {
+                    ContentView()
+                } else {
+                    OnboardingView(onComplete: {
+                        hasCompletedOnboarding = true
+                    })
+                }
+            }
+            .environment(\.sizeCategory, largeText ? .extraExtraLarge : .large)
+            .environment(\.appReduceMotion, reduceMotion)
+            .environment(\.appIncreaseContrast, appIncreaseContrast)
+            .environment(\.legibilityWeight, appIncreaseContrast ? .bold : nil)
+            .contrast(appIncreaseContrast ? 1.3 : 1.0)
+            .animation(reduceMotion ? .none : .easeInOut(duration: 0.4), value: hasCompletedOnboarding)
+            .preferredColorScheme(colorScheme)
+            .transaction { transaction in
+                if reduceMotion {
+                    transaction.animation = .none
+                }
+            }
+
+            // MARK: - Splash Screen
+            if showSplash {
+                SplashView()
+                    .transition(.opacity)
+                    .zIndex(1)
             }
         }
-        .environment(\.sizeCategory, largeText ? .extraExtraLarge : .large)
-        .environment(\.appReduceMotion, appReduceMotion || systemReduceMotion)
-        .environment(\.appIncreaseContrast, appIncreaseContrast)
-        .environment(\.legibilityWeight, appIncreaseContrast ? .bold : nil)
-        .contrast(appIncreaseContrast ? 1.3 : 1.0)
-        .animation(.easeInOut(duration: 0.4), value: hasCompletedOnboarding)
-        .preferredColorScheme(colorScheme)
+        .onAppear {
+            if reduceMotion {
+                showSplash = false
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    withAnimation(.easeOut(duration: 0.5)) {
+                        showSplash = false
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Splash Screen
+
+private struct SplashView: View {
+    @State private var iconScale: CGFloat = 0.5
+    @State private var iconOpacity: Double = 0
+    @State private var textOpacity: Double = 0
+    @State private var pulse = false
+
+    var body: some View {
+        ZStack {
+            // Background gradient matching app accent
+            Color.accentColor
+                .ignoresSafeArea()
+
+            // Subtle gradient overlay
+            LinearGradient(
+                colors: [Color.white.opacity(0.15), Color.clear, Color.black.opacity(0.15)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            // Decorative floating shapes
+            Circle()
+                .fill(Color.white.opacity(0.08))
+                .frame(width: 200, height: 200)
+                .offset(x: -100, y: -200)
+                .scaleEffect(pulse ? 1.1 : 0.9)
+
+            Circle()
+                .fill(Color.black.opacity(0.06))
+                .frame(width: 150, height: 150)
+                .offset(x: 120, y: 180)
+                .scaleEffect(pulse ? 0.9 : 1.1)
+
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white.opacity(0.1))
+                .frame(width: 70, height: 28)
+                .rotationEffect(.degrees(-15))
+                .offset(x: -110, y: 80)
+                .scaleEffect(pulse ? 1.05 : 0.95)
+
+            // Center content
+            VStack(spacing: 20) {
+                // App icon
+                Image(systemName: "bolt.heart.fill")
+                    .font(.system(size: 72, weight: .medium))
+                    .foregroundColor(.white.opacity(0.95))
+                    .shadow(color: Color.black.opacity(0.2), radius: 12, y: 6)
+                    .scaleEffect(iconScale)
+                    .opacity(iconOpacity)
+
+                // App name
+                Text("NUDGE")
+                    .font(.system(size: 34, weight: .black).width(.expanded))
+                    .tracking(10)
+                    .foregroundColor(.white)
+                    .opacity(textOpacity)
+
+                Text("Break through friction")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white.opacity(0.7))
+                    .opacity(textOpacity)
+            }
+        }
+        .onAppear {
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.7)) {
+                iconScale = 1.0
+                iconOpacity = 1.0
+            }
+            withAnimation(.easeOut(duration: 0.6).delay(0.3)) {
+                textOpacity = 1.0
+            }
+            withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
+                pulse = true
+            }
+        }
     }
 }

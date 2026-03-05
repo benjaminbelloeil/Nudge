@@ -221,6 +221,8 @@ struct NudgePaywallView: View {
         .padding(14)
         .background(AppColors.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title). \(subtitle)")
     }
 
     // MARK: - Package Card

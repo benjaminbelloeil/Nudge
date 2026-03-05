@@ -156,6 +156,8 @@ struct NudgeResultView: View {
         .padding(.bottom, 16)
         .opacity(cardsAppeared ? 1 : 0)
         .offset(y: cardsAppeared ? 0 : 12)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(lang("result.action_plan")). \(result.frictionLabel). \(viewModel.taskText.replacingOccurrences(of: "\n", with: " ")). \(viewModel.completedStepCount) of \(viewModel.totalStepCount) steps done")
     }
 
     // MARK: - Progress

@@ -150,6 +150,9 @@ private struct HistoryCard: View {
         .padding(18)
         .background(AppColors.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(entry.taskDescription.replacingOccurrences(of: "\n", with: " ")). \(entry.isCompleted ? "Completed" : "In progress"). \(entry.stepsCompleted) of \(entry.totalSteps) steps done")
+        .accessibilityHint("Double tap to open")
     }
 }
 
@@ -160,6 +163,7 @@ struct NudgeDetailView: View {
     let entryId: UUID
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var languageManager: LanguageManager
+    @Environment(\.appReduceMotion) private var reduceMotion
 
     private var lang: LanguageManager { languageManager }
 
@@ -278,8 +282,12 @@ struct NudgeDetailView: View {
         .navigationTitle(lang["details.title"])
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.05)) {
+            if reduceMotion {
                 appeared = true
+            } else {
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.05)) {
+                    appeared = true
+                }
             }
         }
     }
@@ -338,6 +346,8 @@ private struct DetailHeader: View {
                     .foregroundStyle(.tertiary)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(entry.taskDescription.replacingOccurrences(of: "\n", with: " ")). \(entry.result.frictionLabel). \(entry.isCompleted ? languageManager["details.completed"] : "In progress"). \(languageManager["mood.\(entry.mood.rawValue)"]). \(languageManager["energy.name.\(entry.energy.rawValue)"])")
     }
 }
 
@@ -350,6 +360,7 @@ private struct DetailStepsCard: View {
     @Binding var justCompletedStepId: Int?
     @Binding var shakeStepId: Int?
     @EnvironmentObject var languageManager: LanguageManager
+    @Environment(\.appReduceMotion) private var reduceMotion
 
     private func isStepLocked(_ step: NudgeStep) -> Bool {
         let previous = entry.result.steps.filter { $0.id < step.id }
@@ -359,7 +370,7 @@ private struct DetailStepsCard: View {
     var body: some View {
         VStack(spacing: 0) {
             Button {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                withAnimation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.85)) {
                     showSteps.toggle()
                 }
             } label: {
@@ -415,7 +426,7 @@ private struct DetailStepsCard: View {
                             onToggle: {
                                 if locked {
                                     HapticManager.error()
-                                    withAnimation(.default) {
+                                    withAnimation(reduceMotion ? .none : .default) {
                                         shakeStepId = step.id
                                     }
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -427,11 +438,11 @@ private struct DetailStepsCard: View {
                                 viewModel.toggleStepCompletion(entryId: entry.id, stepId: step.id)
                                 if !wasCompleted {
                                     HapticManager.success()
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                                    withAnimation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.6)) {
                                         justCompletedStepId = step.id
                                     }
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                                        withAnimation(.easeOut(duration: 0.3)) {
+                                        withAnimation(reduceMotion ? .none : .easeOut(duration: 0.3)) {
                                             justCompletedStepId = nil
                                         }
                                     }
@@ -459,11 +470,12 @@ private struct DetailGoalCard: View {
     let entry: NudgeEntry
     @Binding var showGoal: Bool
     @EnvironmentObject var languageManager: LanguageManager
+    @Environment(\.appReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 0) {
             Button {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                withAnimation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.85)) {
                     showGoal.toggle()
                 }
             } label: {
