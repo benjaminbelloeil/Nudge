@@ -342,10 +342,10 @@ struct NudgePaywallView: View {
                 try await subscriptionManager.restorePurchases()
                 isRestoring = false
                 if subscriptionManager.isProUser {
-                    restoreMessage = "Your Pro subscription has been restored!"
+                    restoreMessage = lang["paywall.restore_success"]
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { dismiss() }
                 } else {
-                    restoreMessage = "No active subscription found on this Apple ID."
+                    restoreMessage = lang["paywall.restore_fail"]
                 }
             } catch {
                 isRestoring = false

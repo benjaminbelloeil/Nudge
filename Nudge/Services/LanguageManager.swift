@@ -34,13 +34,62 @@ final class LanguageManager: ObservableObject {
 
     static let shared = LanguageManager()
 
+    /// True once the user has explicitly picked a language in Settings.
+    /// While false, the app always follows the iPhone's system language.
+    private(set) var userPickedLanguage: Bool {
+        get { UserDefaults.standard.bool(forKey: "appLanguageUserPicked") }
+        set { UserDefaults.standard.set(newValue, forKey: "appLanguageUserPicked") }
+    }
+
+    /// Set to true when updating language to follow the system (not a deliberate user choice).
+    private var isSystemUpdate = false
+    private var cancellables = Set<AnyCancellable>()
+
     @Published var language: AppLanguage {
-        didSet { UserDefaults.standard.set(language.rawValue, forKey: "appLanguage") }
+        didSet {
+            UserDefaults.standard.set(language.rawValue, forKey: "appLanguage")
+            // Only mark as user-picked when the user explicitly chooses in Settings
+            if !isSystemUpdate {
+                userPickedLanguage = true
+            }
+        }
     }
 
     init() {
-        let saved = UserDefaults.standard.string(forKey: "appLanguage") ?? Locale.current.language.languageCode?.identifier ?? "en"
-        language = AppLanguage(rawValue: saved) ?? .english
+        let systemCode = Locale.current.language.languageCode?.identifier ?? "en"
+        let userPicked = UserDefaults.standard.bool(forKey: "appLanguageUserPicked")
+
+        if userPicked, let saved = UserDefaults.standard.string(forKey: "appLanguage") {
+            // User has manually chosen a language — respect it
+            language = AppLanguage(rawValue: saved) ?? .english
+        } else {
+            // First launch or user hasn't overridden — follow iPhone language
+            language = AppLanguage(rawValue: systemCode) ?? .english
+        }
+
+        // Observe iOS locale changes so the app updates whenever the user changes
+        // the iPhone language (only applies when the user hasn't explicitly overridden).
+        NotificationCenter.default
+            .publisher(for: NSLocale.currentLocaleDidChangeNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    self?.syncWithSystemLocale()
+                }
+            }
+            .store(in: &cancellables)
+    }
+
+    /// Re-read the iPhone's current language and apply it if the user hasn't
+    /// manually overridden the app language in Settings.
+    func syncWithSystemLocale() {
+        guard !userPickedLanguage else { return }
+        let systemCode = Locale.current.language.languageCode?.identifier ?? "en"
+        let newLang = AppLanguage(rawValue: systemCode) ?? .english
+        guard newLang != language else { return }
+        isSystemUpdate = true
+        language = newLang
+        isSystemUpdate = false
     }
 
     /// Subscript shorthand: `lang["key"]`
@@ -105,9 +154,10 @@ final class LanguageManager: ObservableObject {
             "settings.account.upgrade":         "Upgrade to Pro",
             "settings.account.restore":         "Restore Purchases",
             // Settings – Language
-            "settings.language.section":        "LANGUAGE",
-            // Settings – Preferences
-            "settings.preferences.section":     "PREFERENCES",
+            "settings.language.section":        "Language",
+            // Settings – Preferences / General
+            "settings.preferences.section":     "General",
+            "settings.sounds.section":           "Sounds & Haptics",
             "settings.preferences.appearance":   "Appearance",
             "settings.preferences.appearance_sub": "Choose your theme",
             "settings.preferences.system":       "System",
@@ -124,7 +174,7 @@ final class LanguageManager: ObservableObject {
             "settings.preferences.auto_expand":      "Large Text",
             "settings.preferences.auto_expand_sub":  "Bigger, bolder step text for easier reading",
             // Settings – Accessibility
-            "settings.accessibility.section":           "ACCESSIBILITY",
+            "settings.accessibility.section":           "Accessibility",
             "settings.accessibility.system_badge":       "SYSTEM",
             "settings.accessibility.voiceover":          "VoiceOver",
             "settings.accessibility.voiceover_sub":      "Navigate and use the app without looking at the screen",
@@ -196,7 +246,23 @@ final class LanguageManager: ObservableObject {
             "paywall.per_month":                "/month",
             "paywall.cta":                      "Continue",
             "paywall.restore":                  "Restore Purchases",
+            "paywall.restore_success":           "Your Pro subscription has been restored!",
+            "paywall.restore_fail":              "No active subscription found on this Apple ID.",
             "paywall.disclosure":               "Subscription auto-renews at the same price unless cancelled at least 24 hours before the end of the current period. Manage or cancel in App Store settings.",
+            // Onboarding
+            "onboarding.skip":                  "Skip",
+            "onboarding.btn_begin":              "Let's Begin",
+            "onboarding.btn_continue":           "Continue",
+            "onboarding.btn_start":              "Get Started",
+            "onboarding.page1_title":            "It's Not Laziness",
+            "onboarding.page1_subtitle":         "It's friction. And we'll break through it.",
+            "onboarding.page1_desc":             "Procrastination is your brain protecting you from overwhelm. Nudge gives you the smallest possible first step.",
+            "onboarding.page2_title":            "Two Minutes Is Enough",
+            "onboarding.page2_subtitle":         "Then momentum does the rest.",
+            "onboarding.page2_desc":             "A tiny start removes the hardest part: beginning. Progressive steps build real momentum without pressure.",
+            "onboarding.page3_title":            "Track Your Progress",
+            "onboarding.page3_subtitle":         "See patterns. Build streaks.",
+            "onboarding.page3_desc":             "Track moods, energy, and friction over time. Watch your streaks build and learn what works for you.",
             // Common
             "common.delete":                    "Delete",
             "common.cancel":                    "Cancel",
@@ -335,9 +401,10 @@ final class LanguageManager: ObservableObject {
             "settings.account.upgrade":         "Mejorar a Pro",
             "settings.account.restore":         "Restaurar Compras",
             // Settings – Language
-            "settings.language.section":        "IDIOMA",
-            // Settings – Preferences
-            "settings.preferences.section":     "PREFERENCIAS",
+            "settings.language.section":        "Idioma",
+            // Settings – Preferences / General
+            "settings.preferences.section":     "General",
+            "settings.sounds.section":           "Sonidos y Háptica",
             "settings.preferences.appearance":   "Apariencia",
             "settings.preferences.appearance_sub": "Elige tu tema",
             "settings.preferences.system":       "Sistema",
@@ -352,7 +419,7 @@ final class LanguageManager: ObservableObject {
             "settings.preferences.auto_expand":      "Texto Grande",
             "settings.preferences.auto_expand_sub":  "Texto más grande y en negrita para leer mejor",
             // Settings – Accessibility
-            "settings.accessibility.section":           "ACCESIBILIDAD",
+            "settings.accessibility.section":           "Accesibilidad",
             "settings.accessibility.system_badge":       "SISTEMA",
             "settings.accessibility.voiceover":          "VoiceOver",
             "settings.accessibility.voiceover_sub":      "Navega y usa la app sin mirar la pantalla",
@@ -424,7 +491,23 @@ final class LanguageManager: ObservableObject {
             "paywall.per_month":                "/mes",
             "paywall.cta":                      "Continuar",
             "paywall.restore":                  "Restaurar Compras",
+            "paywall.restore_success":           "¡Tu suscripción Pro ha sido restaurada!",
+            "paywall.restore_fail":              "No se encontró ninguna suscripción activa en este Apple ID.",
             "paywall.disclosure":               "La suscripción se renueva automáticamente al mismo precio salvo cancelación 24 horas antes del fin del período actual. Gestionar en App Store.",
+            // Onboarding
+            "onboarding.skip":                  "Omitir",
+            "onboarding.btn_begin":              "Empecemos",
+            "onboarding.btn_continue":           "Continuar",
+            "onboarding.btn_start":              "Comenzar",
+            "onboarding.page1_title":            "No es Pereza",
+            "onboarding.page1_subtitle":         "Es fricción. Y la vamos a superar.",
+            "onboarding.page1_desc":             "La procrastinación es tu cerebro protegiéndote del agobio. Nudge te da el menor paso posible para comenzar.",
+            "onboarding.page2_title":            "Dos Minutos Bastan",
+            "onboarding.page2_subtitle":         "Luego el impulso hace el resto.",
+            "onboarding.page2_desc":             "Un pequeño comienzo elimina la parte más difícil: empezar. Los pasos progresivos crean impulso real sin presión.",
+            "onboarding.page3_title":            "Sigue Tu Progreso",
+            "onboarding.page3_subtitle":         "Ver patrones. Construir rachas.",
+            "onboarding.page3_desc":             "Registra estados de ánimo, energía y fricción con el tiempo. Observa cómo crecen tus rachas y aprende qué te funciona.",
             // Common
             "common.delete":                    "Eliminar",
             "common.cancel":                    "Cancelar",
@@ -563,9 +646,10 @@ final class LanguageManager: ObservableObject {
             "settings.account.upgrade":         "Passer à Pro",
             "settings.account.restore":         "Restaurer les Achats",
             // Settings – Language
-            "settings.language.section":        "LANGUE",
-            // Settings – Preferences
-            "settings.preferences.section":     "PRÉFÉRENCES",
+            "settings.language.section":        "Langue",
+            // Settings – Preferences / General
+            "settings.preferences.section":     "Général",
+            "settings.sounds.section":           "Sons et Haptique",
             "settings.preferences.appearance":   "Apparence",
             "settings.preferences.appearance_sub": "Choisissez votre thème",
             "settings.preferences.system":       "Système",
@@ -580,7 +664,7 @@ final class LanguageManager: ObservableObject {
             "settings.preferences.auto_expand":      "Texte Large",
             "settings.preferences.auto_expand_sub":  "Texte plus grand et en gras pour une meilleure lecture",
             // Settings – Accessibility
-            "settings.accessibility.section":           "ACCESSIBILITÉ",
+            "settings.accessibility.section":           "Accessibilité",
             "settings.accessibility.system_badge":       "SYSTÈME",
             "settings.accessibility.voiceover":          "VoiceOver",
             "settings.accessibility.voiceover_sub":      "Naviguez et utilisez l'app sans regarder l'écran",
@@ -652,7 +736,23 @@ final class LanguageManager: ObservableObject {
             "paywall.per_month":                "/mois",
             "paywall.cta":                      "Continuer",
             "paywall.restore":                  "Restaurer les Achats",
+            "paywall.restore_success":           "Votre abonnement Pro a été restauré !",
+            "paywall.restore_fail":              "Aucun abonnement actif trouvé sur cet Apple ID.",
             "paywall.disclosure":               "L'abonnement se renouvelle automatiquement au même prix sauf annulation 24 heures avant la fin de la période en cours. Gérer dans les réglages de l'App Store.",
+            // Onboarding
+            "onboarding.skip":                  "Passer",
+            "onboarding.btn_begin":              "C'est Parti",
+            "onboarding.btn_continue":           "Continuer",
+            "onboarding.btn_start":              "Commencer",
+            "onboarding.page1_title":            "Ce N'est Pas de la Paresse",
+            "onboarding.page1_subtitle":         "C'est de la friction. Et on va la dépasser.",
+            "onboarding.page1_desc":             "La procrastination, c'est ton cerveau qui te protège de la surcharge. Nudge te donne le plus petit premier pas possible.",
+            "onboarding.page2_title":            "Deux Minutes Suffisent",
+            "onboarding.page2_subtitle":         "Ensuite, l'élan fait le reste.",
+            "onboarding.page2_desc":             "Un petit départ supprime la partie la plus difficile : commencer. Des étapes progressives créent un vrai élan sans pression.",
+            "onboarding.page3_title":            "Suis Tes Progrès",
+            "onboarding.page3_subtitle":         "Voir les tendances. Construire des séries.",
+            "onboarding.page3_desc":             "Suis humeur, énergie et friction dans le temps. Regarde tes séries grandir et apprends ce qui fonctionne pour toi.",
             // Common
             "common.delete":                    "Supprimer",
             "common.cancel":                    "Annuler",

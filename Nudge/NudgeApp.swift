@@ -26,6 +26,8 @@ struct NudgeApp: App {
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
+                // Re-sync app language with iPhone system language (no-op if user overrode it)
+                LanguageManager.shared.syncWithSystemLocale()
                 Task {
                     await SubscriptionManager.shared.refreshCustomerInfo()
                     // Sync toggle with real OS permission (handles user disabling in iOS Settings)
@@ -34,7 +36,7 @@ struct NudgeApp: App {
                     if notificationsEnabled && !osGranted {
                         notificationsEnabled = false
                     }
-                    // Re-schedule if still enabled
+                    // Re-schedule if still enabled (picks up new language if it changed)
                     if notificationsEnabled {
                         await NotificationManager.shared.scheduleAll()
                     }

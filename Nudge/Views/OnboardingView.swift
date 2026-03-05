@@ -2,9 +2,11 @@ import SwiftUI
 
 struct OnboardingView: View {
     var onComplete: () -> Void
+    @EnvironmentObject var languageManager: LanguageManager
     @State private var currentPage = 0
-    @Environment(\.appReduceMotion) private var reduceMotion
+    @Environment(\..appReduceMotion) private var reduceMotion
 
+    private var lang: LanguageManager { languageManager }
     private let totalPages = 3
 
     var body: some View {
@@ -52,7 +54,7 @@ struct OnboardingView: View {
                     Button {
                         onComplete()
                     } label: {
-                        Text("Skip")
+                        Text(lang["onboarding.skip"])
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.secondary)
@@ -70,9 +72,9 @@ struct OnboardingView: View {
                         secondaryColor: Color(red: 0.55, green: 0.35, blue: 0.95),
                         iconMain: "bolt.heart.fill",
                         iconDecorations: ["sparkle", "brain.head.profile", "lightbulb.fill"],
-                        title: "It's Not Laziness",
-                        subtitle: "It's friction. And we'll break through it.",
-                        description: "Procrastination is your brain protecting you from overwhelm. Nudge gives you the smallest possible first step."
+                        title: lang["onboarding.page1_title"],
+                        subtitle: lang["onboarding.page1_subtitle"],
+                        description: lang["onboarding.page1_desc"]
                     )
                     .tag(0)
 
@@ -81,9 +83,9 @@ struct OnboardingView: View {
                         secondaryColor: Color(red: 0.35, green: 0.80, blue: 0.55),
                         iconMain: "timer",
                         iconDecorations: ["flame.fill", "arrow.up.right", "checkmark.circle"],
-                        title: "Two Minutes Is Enough",
-                        subtitle: "Then momentum does the rest.",
-                        description: "A tiny start removes the hardest part: beginning. Progressive steps build real momentum without pressure."
+                        title: lang["onboarding.page2_title"],
+                        subtitle: lang["onboarding.page2_subtitle"],
+                        description: lang["onboarding.page2_desc"]
                     )
                     .tag(1)
 
@@ -92,9 +94,9 @@ struct OnboardingView: View {
                         secondaryColor: Color(red: 0.90, green: 0.40, blue: 0.30),
                         iconMain: "chart.line.uptrend.xyaxis",
                         iconDecorations: ["flame", "star.fill", "trophy.fill"],
-                        title: "Track Your Progress",
-                        subtitle: "See patterns. Build streaks.",
-                        description: "Track moods, energy, and friction over time. Watch your streaks build and learn what works for you."
+                        title: lang["onboarding.page3_title"],
+                        subtitle: lang["onboarding.page3_subtitle"],
+                        description: lang["onboarding.page3_desc"]
                     )
                     .tag(2)
                 }
@@ -136,9 +138,9 @@ struct OnboardingView: View {
 
     private var buttonLabel: String {
         switch currentPage {
-        case 0: return "Let's Begin"
-        case 1: return "Continue"
-        default: return "Get Started"
+        case 0: return lang["onboarding.btn_begin"]
+        case 1: return lang["onboarding.btn_continue"]
+        default: return lang["onboarding.btn_start"]
         }
     }
 }

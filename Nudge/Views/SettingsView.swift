@@ -22,6 +22,7 @@ struct SettingsView: View {
     @State private var exportURL: URL? = nil
     @State private var showExport = false
     @State private var showNotificationsDeniedAlert = false
+    @State private var showLanguageDropdown = false
 
     private var lang: LanguageManager { languageManager }
 
@@ -38,12 +39,12 @@ struct SettingsView: View {
                     .offset(y: appeared ? 0 : 12)
                     .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.05), value: appeared)
 
-                languageSection
+                generalSection
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 12)
                     .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.08), value: appeared)
 
-                preferencesSection
+                soundsSection
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 12)
                     .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.11), value: appeared)
@@ -53,24 +54,24 @@ struct SettingsView: View {
                     .offset(y: appeared ? 0 : 12)
                     .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.135), value: appeared)
 
-                aboutSection
+                supportSection
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 12)
-                    .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.14), value: appeared)
+                    .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.155), value: appeared)
 
                 dataSection
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 12)
-                    .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.17), value: appeared)
+                    .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.18), value: appeared)
 
-                debugSection
-                    .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 12)
-                    .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.20), value: appeared)
+                // debugSection
+                //     .opacity(appeared ? 1 : 0)
+                //     .offset(y: appeared ? 0 : 12)
+                //     .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.21), value: appeared)
 
                 versionFooter
                     .opacity(appeared ? 1 : 0)
-                    .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.2), value: appeared)
+                    .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.21), value: appeared)
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)
@@ -186,7 +187,7 @@ struct SettingsView: View {
             if subscriptionManager.isProUser {
                 SectionRow {
                     HStack(spacing: 14) {
-                        RowIcon(name: "crown.fill", color: .yellow)
+                        RowIcon(name: "crown.fill", color: Color(red: 0.55, green: 0.35, blue: 0.95))
                         VStack(alignment: .leading, spacing: 2) {
                             Text(lang["settings.account.pro_badge"])
                                 .font(.subheadline).fontWeight(.semibold)
@@ -248,63 +249,14 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Language Section
+    // MARK: - General Section (Appearance + Language)
 
-    private var languageSection: some View {
-        SectionGroup(title: lang["settings.language.section"]) {
-            ForEach(Array(AppLanguage.allCases.enumerated()), id: \.element.id) { index, appLang in
-                let isSelected = languageManager.language == appLang
-
-                Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                        languageManager.language = appLang
-                    }
-                    if hapticsEnabled { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
-                } label: {
-                    SectionRow {
-                        HStack(spacing: 14) {
-                            Text(appLang.flag)
-                                .font(.title3)
-                                .frame(width: 36, height: 36)
-                                .background(AppColors.elevatedCard)
-                                .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
-
-                            Text(appLang.displayName)
-                                .font(.subheadline).fontWeight(isSelected ? .semibold : .regular)
-                                .foregroundColor(.primary)
-
-                            Spacer()
-
-                            if isSelected {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.body)
-                                    .foregroundColor(.accentColor)
-                                    .transition(.scale.combined(with: .opacity))
-                            } else {
-                                Circle()
-                                    .strokeBorder(Color.secondary.opacity(0.25), lineWidth: 1.5)
-                                    .frame(width: 20, height: 20)
-                            }
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-
-                if index < AppLanguage.allCases.count - 1 {
-                    RowDivider()
-                }
-            }
-        }
-    }
-
-    // MARK: - Preferences Section
-
-    private var preferencesSection: some View {
+    private var generalSection: some View {
         SectionGroup(title: lang["settings.preferences.section"]) {
             // Appearance
             SectionRow {
                 HStack(spacing: 14) {
-                    RowIcon(name: "circle.lefthalf.filled", color: Color(red: 0.35, green: 0.35, blue: 0.40))
+                    RowIcon(name: "circle.lefthalf.filled", color: Color(red: 0.55, green: 0.35, blue: 0.95))
                     VStack(alignment: .leading, spacing: 2) {
                         Text(lang["settings.preferences.appearance"])
                             .font(.subheadline).fontWeight(.medium)
@@ -312,7 +264,6 @@ struct SettingsView: View {
                             .font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    // Segmented appearance picker (icons only)
                     HStack(spacing: 2) {
                         ForEach([
                             (0, "circle.lefthalf.filled"),
@@ -321,7 +272,7 @@ struct SettingsView: View {
                         ], id: \.0) { tag, icon in
                             Button {
                                 withAnimation(.easeInOut(duration: 0.18)) { appearanceMode = tag }
-                                HapticManager.selection()
+                                if hapticsEnabled { HapticManager.selection() }
                             } label: {
                                 Image(systemName: icon)
                                     .font(.system(size: 13, weight: appearanceMode == tag ? .semibold : .regular))
@@ -341,29 +292,101 @@ struct SettingsView: View {
 
             RowDivider()
 
-            // Haptics
-            SectionRow {
-                HStack(spacing: 14) {
-                    RowIcon(name: "waveform", color: Color(red: 0.55, green: 0.45, blue: 0.95))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(lang["settings.preferences.haptics"])
-                            .font(.subheadline).fontWeight(.medium)
-                        Text(lang["settings.preferences.haptics_sub"])
-                            .font(.caption).foregroundStyle(.secondary)
+            // Language
+            Button {
+                withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+                    showLanguageDropdown.toggle()
+                }
+                if hapticsEnabled { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+            } label: {
+                SectionRow {
+                    HStack(spacing: 14) {
+                        RowIcon(name: "globe", color: Color(red: 0.40, green: 0.45, blue: 0.90))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(lang["settings.language.section"])
+                                .font(.subheadline).fontWeight(.medium)
+                                .foregroundColor(.primary)
+                            Text(languageManager.language.displayName)
+                                .font(.caption).foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                        Spacer()
+                        HStack(spacing: 6) {
+                            Text(languageManager.language.displayName)
+                                .font(.subheadline).fontWeight(.medium)
+                                .foregroundColor(.primary)
+                                .lineLimit(1)
+                                .id("lang-" + languageManager.language.rawValue)
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(.secondary)
+                                .rotationEffect(.degrees(showLanguageDropdown ? 180 : 0))
+                        }
                     }
-                    Spacer()
-                    Toggle("", isOn: $hapticsEnabled)
-                        .labelsHidden()
-                        .tint(.accentColor)
                 }
             }
+            .buttonStyle(.plain)
 
-            RowDivider()
+            if showLanguageDropdown {
+                VStack(spacing: 0) {
+                    Divider().padding(.leading, 66)
+                    ForEach(Array(AppLanguage.allCases.enumerated()), id: \.element.id) { index, appLang in
+                        let isSelected = languageManager.language == appLang
+                        let indigo = Color(red: 0.40, green: 0.45, blue: 0.90)
+                        Button {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                languageManager.language = appLang
+                                showLanguageDropdown = false
+                            }
+                            if hapticsEnabled { UIImpactFeedbackGenerator(style: .medium).impactOccurred() }
+                        } label: {
+                            SectionRow {
+                                HStack(spacing: 14) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 9, style: .continuous)
+                                            .fill(isSelected ? indigo : indigo.opacity(0.10))
+                                            .frame(width: 36, height: 36)
+                                        Text(appLang.rawValue.uppercased())
+                                            .font(.system(size: 13, weight: .bold))
+                                            .foregroundColor(isSelected ? .white : indigo)
+                                    }
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(appLang.displayName)
+                                            .font(.subheadline)
+                                            .fontWeight(isSelected ? .semibold : .medium)
+                                            .foregroundColor(.primary)
+                                        Text(appLang.rawValue.uppercased())
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                                        .font(.body)
+                                        .foregroundColor(isSelected ? indigo : Color.secondary.opacity(0.25))
+                                }
+                            }
+                            .background(isSelected ? indigo.opacity(0.07) : Color.clear)
+                        }
+                        .buttonStyle(.plain)
+                        if index < AppLanguage.allCases.count - 1 {
+                            Divider().padding(.leading, 66)
+                        }
+                    }
+                }
+                .transition(.opacity)
+                .clipped()
+            }
+        }
+    }
 
+    // MARK: - Sounds & Haptics Section
+
+    private var soundsSection: some View {
+        SectionGroup(title: lang["settings.sounds.section"]) {
             // Notifications
             SectionRow {
                 HStack(spacing: 14) {
-                    RowIcon(name: "bell.badge.fill", color: Color(red: 0.95, green: 0.45, blue: 0.35))
+                    RowIcon(name: "bell.badge.fill", color: Color(red: 0.95, green: 0.35, blue: 0.50))
                     VStack(alignment: .leading, spacing: 2) {
                         Text(lang["settings.preferences.notifications"])
                             .font(.subheadline).fontWeight(.medium)
@@ -385,6 +408,25 @@ struct SettingsView: View {
                         }
                 }
             }
+
+            RowDivider()
+
+            // Haptic Feedback
+            SectionRow {
+                HStack(spacing: 14) {
+                    RowIcon(name: "waveform", color: Color(red: 0.55, green: 0.35, blue: 0.95))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(lang["settings.preferences.haptics"])
+                            .font(.subheadline).fontWeight(.medium)
+                        Text(lang["settings.preferences.haptics_sub"])
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Toggle("", isOn: $hapticsEnabled)
+                        .labelsHidden()
+                        .tint(.accentColor)
+                }
+            }
         }
     }
 
@@ -392,66 +434,63 @@ struct SettingsView: View {
 
     private var accessibilitySection: some View {
         SectionGroup(title: lang["settings.accessibility.section"]) {
-            // Reduce Motion
-            SectionRow {
-                HStack(spacing: 14) {
-                    RowIcon(name: "figure.walk.motion", color: Color(red: 0.45, green: 0.65, blue: 0.95))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(lang["settings.accessibility.reduce_motion"])
-                            .font(.subheadline).fontWeight(.medium)
-                        Text(lang["settings.accessibility.reduce_motion_sub"])
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Toggle("", isOn: $reduceMotion)
-                        .labelsHidden()
-                        .tint(.accentColor)
-                }
-            }
-
+            accessibilityToggleRow(
+                icon: "figure.walk.motion",
+                color: Color(red: 0.35, green: 0.55, blue: 0.95),
+                title: lang["settings.accessibility.reduce_motion"],
+                subtitle: lang["settings.accessibility.reduce_motion_sub"],
+                isOn: $reduceMotion
+            )
             RowDivider()
-
-            // Large Text
-            SectionRow {
-                HStack(spacing: 14) {
-                    RowIcon(name: "textformat.size.larger", color: Color(red: 0.25, green: 0.55, blue: 0.95))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(lang["settings.accessibility.large_text"])
-                            .font(.subheadline).fontWeight(.medium)
-                        Text(lang["settings.accessibility.large_text_sub"])
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Toggle("", isOn: $largeText)
-                        .labelsHidden()
-                        .tint(.accentColor)
-                }
-            }
-
+            accessibilityToggleRow(
+                icon: "textformat.size.larger",
+                color: Color(red: 0.65, green: 0.40, blue: 0.90),
+                title: lang["settings.accessibility.large_text"],
+                subtitle: lang["settings.accessibility.large_text_sub"],
+                isOn: $largeText
+            )
             RowDivider()
-
-            // Increase Contrast
-            SectionRow {
-                HStack(spacing: 14) {
-                    RowIcon(name: "circle.lefthalf.striped.horizontal.inverse", color: Color(red: 0.30, green: 0.55, blue: 0.95))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(lang["settings.accessibility.increase_contrast"])
-                            .font(.subheadline).fontWeight(.medium)
-                        Text(lang["settings.accessibility.increase_contrast_sub"])
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Toggle("", isOn: $increaseContrast)
-                        .labelsHidden()
-                        .tint(.accentColor)
-                }
-            }
+            accessibilityToggleRow(
+                icon: "circle.lefthalf.striped.horizontal.inverse",
+                color: Color(red: 0.45, green: 0.35, blue: 0.85),
+                title: lang["settings.accessibility.increase_contrast"],
+                subtitle: lang["settings.accessibility.increase_contrast_sub"],
+                isOn: $increaseContrast
+            )
         }
     }
 
-    // MARK: - About Section
+    /// Toggle row that only fires haptics when hapticsEnabled is true.
+    @ViewBuilder
+    private func accessibilityToggleRow(icon: String, color: Color, title: String, subtitle: String, isOn: Binding<Bool>) -> some View {
+        Button {
+            isOn.wrappedValue.toggle()
+            if hapticsEnabled { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+        } label: {
+            SectionRow {
+                HStack(spacing: 14) {
+                    RowIcon(name: icon, color: color)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(title)
+                            .font(.subheadline).fontWeight(.medium)
+                            .foregroundColor(.primary)
+                        Text(subtitle)
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Toggle("", isOn: .constant(isOn.wrappedValue))
+                        .labelsHidden()
+                        .tint(.accentColor)
+                        .allowsHitTesting(false)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
 
-    private var aboutSection: some View {
+    // MARK: - Support Section
+
+    private var supportSection: some View {
         SectionGroup(title: lang["settings.about.section"]) {
             SectionTapRow(
                 icon: "sparkles",
@@ -473,7 +512,7 @@ struct SettingsView: View {
 
             SectionLinkRow(
                 icon: "hand.raised.fill",
-                iconColor: Color(red: 0.35, green: 0.80, blue: 0.55),
+                iconColor: Color(red: 0.35, green: 0.65, blue: 0.50),
                 label: lang["settings.about.privacy"],
                 url: "https://benjaminbelloeil.github.io/Nudge/privacy.html"
             )
@@ -482,7 +521,7 @@ struct SettingsView: View {
 
             SectionLinkRow(
                 icon: "doc.text.fill",
-                iconColor: Color(red: 0.20, green: 0.55, blue: 0.95),
+                iconColor: Color(red: 0.50, green: 0.55, blue: 0.72),
                 label: lang["settings.about.terms"],
                 url: "https://benjaminbelloeil.github.io/Nudge/terms.html"
             )
@@ -599,9 +638,8 @@ struct SettingsView: View {
                 .tracking(5)
                 .foregroundStyle(.quaternary)
 
-            if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
-               let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
-                Text("\(lang["settings.about.version"]) \(version) (\(build))")
+            if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                Text("\(lang["settings.about.version"]) \(version)")
                     .font(.caption2)
                     .foregroundStyle(.quaternary)
             }
