@@ -166,14 +166,11 @@ struct CustomerCenterView: View {
                     if let purchaseDate = entitlement.latestPurchaseDate {
                         Divider().padding(.horizontal, 18)
                         PlanDetailRow(label: "Started", value: purchaseDate.formatted(date: .long, time: .omitted), badge: nil)
+                    }
 
-                        let nextRenewal = Calendar.current.date(
-                            byAdding: isYearly ? .year : .month,
-                            value: 1,
-                            to: purchaseDate
-                        ) ?? purchaseDate
+                    if let expirationDate = entitlement.expirationDate {
                         Divider().padding(.horizontal, 18)
-                        PlanDetailRow(label: "Next renewal", value: nextRenewal.formatted(date: .long, time: .omitted), badge: nil)
+                        PlanDetailRow(label: "Next renewal", value: expirationDate.formatted(date: .long, time: .omitted), badge: nil)
                     }
 
                     Divider().padding(.horizontal, 18)

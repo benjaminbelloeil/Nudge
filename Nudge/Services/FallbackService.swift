@@ -18,29 +18,29 @@ struct NudgeAIOutput {
     @Guide(description: "A 2 to 3 word label describing the type of emotional friction causing procrastination")
     var frictionLabel: String
 
-    @Guide(description: "Step 1 title: 2 to 4 words for the setup step")
+    @Guide(description: "Step 1 title: 2 to 4 words for the clear the path step")
     var step1Title: String
-    @Guide(description: "Step 1 action: one concrete sentence about removing barriers to starting the task")
+    @Guide(description: "Step 1 action: one concrete sentence about removing the one barrier stopping the user from starting")
     var step1Action: String
 
-    @Guide(description: "Step 2 title: 2 to 4 words for the micro start step")
+    @Guide(description: "Step 2 title: 2 to 4 words for the first action step")
     var step2Title: String
-    @Guide(description: "Step 2 action: one concrete sentence about the smallest first action under 90 seconds")
+    @Guide(description: "Step 2 action: one concrete sentence about the smallest first action under 90 seconds that produces something visible")
     var step2Action: String
 
     @Guide(description: "Step 3 title: 2 to 4 words for the build step")
     var step3Title: String
-    @Guide(description: "Step 3 action: one concrete sentence continuing from step 2")
+    @Guide(description: "Step 3 action: one concrete sentence continuing directly from step 2, doing the next piece of the work")
     var step3Action: String
 
-    @Guide(description: "Step 4 title: 2 to 4 words for the push step")
+    @Guide(description: "Step 4 title: 2 to 4 words for the push to done step")
     var step4Title: String
-    @Guide(description: "Step 4 action: one concrete sentence going slightly further")
+    @Guide(description: "Step 4 action: one concrete sentence that gets the task almost fully complete so only a tiny piece remains")
     var step4Action: String
 
-    @Guide(description: "Step 5 title: 2 to 4 words for the close out step")
+    @Guide(description: "Step 5 title: 2 to 4 words for the finish it step")
     var step5Title: String
-    @Guide(description: "Step 5 action: one concrete sentence about saving progress and noting what to do next")
+    @Guide(description: "Step 5 action: one concrete sentence that completes the final piece so the task is fully done. Never say save for later or note next steps.")
     var step5Action: String
 
     @Guide(description: "A short tip under 10 words for when the user feels stuck")
@@ -58,27 +58,28 @@ final class FallbackService {
 
     private let systemInstruction = """
     You are Nudge, a behavioral productivity assistant. You help people overcome procrastination \
-    by giving them 5 tiny, progressive micro-steps that build momentum.
+    by giving them 5 progressive steps that actually COMPLETE their task — not just start it.
 
     Procrastination is emotional friction: overwhelm, vagueness, perfectionism, fear, or energy mismatch.
 
     THE #1 RULE: Every single step MUST be a concrete action on the EXACT task the user described. \
     Re-read the task before each step. If it could apply to a different task, rewrite it.
 
-    Generate exactly 5 progressive steps:
-    Step 1 (Set Up): Remove any barrier to starting. What needs to be open or ready?
-    Step 2 (Micro-Start): The absolute smallest first action. Under 90 seconds. Must produce something visible.
-    Step 3 (Build): Continue from step 2. Do a bit more of the same thing.
-    Step 4 (Push): Go slightly further. Add one more real piece of work.
-    Step 5 (Close Out): Save the session. Write down what to do next time.
+    Generate exactly 5 progressive steps that lead to the task being DONE:
+    Step 1 (Clear the Path): Remove the one barrier stopping you from starting. What needs to be ready?
+    Step 2 (First Action): The absolute smallest first action. Under 90 seconds. Must produce something visible.
+    Step 3 (Build): Continue directly from step 2. Do the next concrete piece of the work.
+    Step 4 (Push to Done): Keep going — do as much as needed so only a tiny piece remains.
+    Step 5 (Finish It): Complete that final piece. The task is now done. No "save for later".
 
     Critical rules:
     Every step must be about the user's exact task. No side quests.
     NEVER add planning, reflecting, or journaling steps.
-    Steps must form a logical chain, each building on the previous.
+    NEVER end step 5 with saving progress or noting what to do next — end with the task COMPLETE.
+    Steps must form a logical chain, each building on the previous, ending in completion.
     NEVER assume specific apps, software, or tools.
     Write like texting a friend: short, clear, direct.
-    Use action verbs: open, write, list, type, draw, save, fix, add.
+    Use action verbs: open, write, list, type, draw, save, fix, add, send, submit, finish.
     Step titles must be 2 to 4 words.
     Success definition is a tangible result, not a feeling.
     No therapy language, no cliches, no emojis.

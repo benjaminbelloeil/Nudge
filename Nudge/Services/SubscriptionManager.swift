@@ -8,7 +8,9 @@ final class SubscriptionManager: ObservableObject {
 
     // MARK: - Published State
 
-    @Published fileprivate(set) var isProUser: Bool = false
+    @Published fileprivate var _isProUser: Bool = false
+    /// True if the user has an active Pro entitlement, OR if debug force-Pro is on.
+    var isProUser: Bool { debugForceProUser || _isProUser }
     @Published fileprivate(set) var customerInfo: CustomerInfo? = nil
     @Published private(set) var offerings: Offerings? = nil
     @Published private(set) var isLoading: Bool = true
@@ -69,9 +71,19 @@ final class SubscriptionManager: ObservableObject {
     func refreshCustomerInfo() async {
         guard isConfigured else { return }
         do {
-            let info = try await Purchases.shared.customerInfo()
+            // Use .fetchCurrent to always hit the server, bypassing RevenueCat's local cache
+            let info = try await Purchases.shared.customerInfo(fetchPolicy: .fetchCurrent)
+            #if DEBUG
+            print("━━━━━━━━━━━━ RevenueCat customerInfo ━━━━━━━━━━━━")
+            print("🟣 ALL entitlement keys:", Array(info.entitlements.all.keys))
+            print("🟢 ACTIVE entitlement keys:", Array(info.entitlements.active.keys))
+            print("🎯 Looking for entitlement ID: '\(Self.entitlementID)'")
+            print("🔍 isProUser:", info.entitlements[Self.entitlementID]?.isActive == true)
+            print("🗓️ expiration:", info.entitlements[Self.entitlementID]?.expirationDate as Any)
+            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            #endif
             self.customerInfo = info
-            self.isProUser = info.entitlements[Self.entitlementID]?.isActive == true
+            self._isProUser = info.entitlements[Self.entitlementID]?.isActive == true
         } catch {
             // Fail silently — keep current state
         }
@@ -94,7 +106,7 @@ final class SubscriptionManager: ObservableObject {
         guard isConfigured else { throw NSError(domain: "SubscriptionManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Subscriptions unavailable"]) }
         let result = try await Purchases.shared.purchase(package: package)
         self.customerInfo = result.customerInfo
-        self.isProUser = result.customerInfo.entitlements[Self.entitlementID]?.isActive == true
+        self._isProUser = result.customerInfo.entitlements[Self.entitlementID]?.isActive == true
         return !result.userCancelled
     }
 
@@ -104,7 +116,7 @@ final class SubscriptionManager: ObservableObject {
         guard isConfigured else { throw NSError(domain: "SubscriptionManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Subscriptions unavailable"]) }
         let info = try await Purchases.shared.restorePurchases()
         self.customerInfo = info
-        self.isProUser = info.entitlements[Self.entitlementID]?.isActive == true
+        self._isProUser = info.entitlements[Self.entitlementID]?.isActive == true
     }
 
     // MARK: - Gating Logic
@@ -144,13 +156,21 @@ final class SubscriptionManager: ObservableObject {
         return PersistenceManager.shared.entries.filter { $0.createdAt >= weekStart }.count
     }
 
+    // DEBUG ONLY: set to true in Simulator/device to bypass paywall while testing UI
+    @AppStorage("debug_forceProUser") var debugForceProUser: Bool = false
+
     func canCreateNudge() -> Bool {
+        if debugForceProUser { return true }
+        // While RevenueCat is still loading, don't block the user
+        if isLoading { return true }
         if isProUser { return true }
         return nudgesCreatedThisWeek() < Self.freeNudgesPerWeek
     }
 
     var remainingFreeNudges: Int {
-        max(0, Self.freeNudgesPerWeek - nudgesCreatedThisWeek())
+        if debugForceProUser { return Int.max }
+        if isLoading { return Int.max }
+        return max(0, Self.freeNudgesPerWeek - nudgesCreatedThisWeek())
     }
 }
 
@@ -162,7 +182,7 @@ final class RevenueCatDelegate: NSObject, PurchasesDelegate, Sendable {
     nonisolated func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
         Task { @MainActor in
             SubscriptionManager.shared.customerInfo = customerInfo
-            SubscriptionManager.shared.isProUser = customerInfo.entitlements[SubscriptionManager.entitlementID]?.isActive == true
+            SubscriptionManager.shared._isProUser = customerInfo.entitlements[SubscriptionManager.entitlementID]?.isActive == true
         }
     }
 }

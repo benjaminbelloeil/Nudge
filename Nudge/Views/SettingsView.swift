@@ -63,10 +63,10 @@ struct SettingsView: View {
                     .offset(y: appeared ? 0 : 12)
                     .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.17), value: appeared)
 
-                // debugSection
-                //     .opacity(appeared ? 1 : 0)
-                //     .offset(y: appeared ? 0 : 12)
-                //     .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.20), value: appeared)
+                debugSection
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 12)
+                    .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.20), value: appeared)
 
                 versionFooter
                     .opacity(appeared ? 1 : 0)
@@ -491,10 +491,30 @@ struct SettingsView: View {
 
     // MARK: - Data Section
 
-    // MARK: - Debug Section (disabled for release)
-    /*
+    // MARK: - Debug Section
     private var debugSection: some View {
-        SectionGroup(title: "DEBUG") {
+        SectionGroup(title: "DEBUG 🛠️") {
+            // Force Pro toggle — bypass RevenueCat entirely for UI testing
+            SectionRow {
+                HStack(spacing: 14) {
+                    RowIcon(name: "crown.fill", color: .yellow)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Force Pro (bypass RC)")
+                            .font(.subheadline).fontWeight(.semibold)
+                        Text("Unlocks all Pro features locally")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Toggle("", isOn: Binding(
+                        get: { subscriptionManager.debugForceProUser },
+                        set: { subscriptionManager.debugForceProUser = $0 }
+                    ))
+                    .labelsHidden()
+                }
+            }
+
+            RowDivider()
+
             SectionTapRow(
                 icon: "bell.badge.fill",
                 iconColor: Color(red: 0.95, green: 0.45, blue: 0.25),
@@ -503,13 +523,12 @@ struct SettingsView: View {
                     Task {
                         let content = UNMutableNotificationContent()
                         content.title = "Time to make progress"
-                        content.body = "What's one thing you can do right now?"
+                        content.body = "What\'s one thing you can do right now?"
                         content.sound = .default
                         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
                         let request = UNNotificationRequest(identifier: "nudge.test", content: content, trigger: trigger)
                         try? await UNUserNotificationCenter.current().add(request)
                     }
-                    // Background the app within 5 seconds to see the banner
                 }
             )
 
@@ -532,7 +551,6 @@ struct SettingsView: View {
             )
         }
     }
-    */
 
     private var dataSection: some View {
         SectionGroup(title: lang["settings.data.section"]) {

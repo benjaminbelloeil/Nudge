@@ -10,7 +10,9 @@ struct NudgePaywallView: View {
 
     @State private var selectedPackage: Package?
     @State private var isPurchasing = false
+    @State private var isRestoring = false
     @State private var errorMessage: String?
+    @State private var restoreMessage: String?
     @State private var appeared = false
     @Environment(\.appReduceMotion) private var reduceMotion
 
@@ -155,15 +157,27 @@ struct NudgePaywallView: View {
                         )
                         .foregroundColor(Color(UIColor.systemBackground))
                     }
-                    .disabled(selectedPackage == nil || isPurchasing)
+                    .disabled(selectedPackage == nil || isPurchasing || isRestoring)
                     .accessibilityLabel(isPurchasing ? "Processing purchase" : lang["paywall.cta"])
                     .accessibilityHint(selectedPackage == nil ? "Select a plan first" : "Purchases the selected subscription")
 
-                    Button(lang["paywall.restore"]) { restore() }
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .accessibilityLabel(lang["paywall.restore"])
-                        .accessibilityHint("Restores previously purchased subscriptions")
+                    Button {
+                        restore()
+                    } label: {
+                        Group {
+                            if isRestoring {
+                                HStack(spacing: 6) {
+                                    ProgressView().tint(.secondary).scaleEffect(0.8)
+                                    Text("Restoring…").font(.caption).foregroundColor(.secondary)
+                                }
+                            } else {
+                                Text(lang["paywall.restore"]).font(.caption).foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    .disabled(isPurchasing || isRestoring)
+                    .accessibilityLabel(lang["paywall.restore"])
+                    .accessibilityHint("Restores previously purchased subscriptions")
 
                     // Required subscription disclosure (App Store guidelines)
                     Text(lang["paywall.disclosure"])
@@ -179,6 +193,14 @@ struct NudgePaywallView: View {
             .padding(.top, 24)
         }
         .background(AppColors.background.ignoresSafeArea())
+        .alert("Restore Purchases", isPresented: .init(
+            get: { restoreMessage != nil },
+            set: { if !$0 { restoreMessage = nil } }
+        )) {
+            Button("OK") { restoreMessage = nil }
+        } message: {
+            Text(restoreMessage ?? "")
+        }
         .onAppear {
             withAnimation(reduceMotion ? .none : .spring(response: 0.8, dampingFraction: 0.75).delay(0.05)) {
                 appeared = true
@@ -313,16 +335,22 @@ struct NudgePaywallView: View {
     }
 
     private func restore() {
-        isPurchasing = true
+        isRestoring = true
         errorMessage = nil
         Task {
             do {
                 try await subscriptionManager.restorePurchases()
-                if subscriptionManager.isProUser { dismiss() }
+                isRestoring = false
+                if subscriptionManager.isProUser {
+                    restoreMessage = "Your Pro subscription has been restored!"
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { dismiss() }
+                } else {
+                    restoreMessage = "No active subscription found on this Apple ID."
+                }
             } catch {
-                errorMessage = error.localizedDescription
+                isRestoring = false
+                restoreMessage = error.localizedDescription
             }
-            isPurchasing = false
         }
     }
 }
