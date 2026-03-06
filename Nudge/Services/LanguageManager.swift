@@ -162,8 +162,8 @@ final class LanguageManager: ObservableObject {
             // Settings – Language
             "settings.language.section":        "Language",
             // Settings – Preferences / General
-            "settings.preferences.section":     "General",
-            "settings.sounds.section":           "Sounds & Haptics",
+            "settings.preferences.section":     "GENERAL",
+            "settings.sounds.section":           "SOUNDS & HAPTICS",
             "settings.preferences.appearance":   "Appearance",
             "settings.preferences.appearance_sub": "Choose your theme",
             "settings.preferences.system":       "System",
@@ -180,7 +180,7 @@ final class LanguageManager: ObservableObject {
             "settings.preferences.auto_expand":      "Large Text",
             "settings.preferences.auto_expand_sub":  "Bigger, bolder step text for easier reading",
             // Settings – Accessibility
-            "settings.accessibility.section":           "Accessibility",
+            "settings.accessibility.section":           "ACCESSIBILITY",
             "settings.accessibility.system_badge":       "SYSTEM",
             "settings.accessibility.voiceover":          "VoiceOver",
             "settings.accessibility.voiceover_sub":      "Navigate and use the app without looking at the screen",
@@ -446,8 +446,8 @@ final class LanguageManager: ObservableObject {
             // Settings – Language
             "settings.language.section":        "Idioma",
             // Settings – Preferences / General
-            "settings.preferences.section":     "General",
-            "settings.sounds.section":           "Sonidos y Háptica",
+            "settings.preferences.section":     "GENERAL",
+            "settings.sounds.section":           "SONIDOS Y HÁPTICA",
             "settings.preferences.appearance":   "Apariencia",
             "settings.preferences.appearance_sub": "Elige tu tema",
             "settings.preferences.system":       "Sistema",
@@ -462,7 +462,7 @@ final class LanguageManager: ObservableObject {
             "settings.preferences.auto_expand":      "Texto Grande",
             "settings.preferences.auto_expand_sub":  "Texto más grande y en negrita para leer mejor",
             // Settings – Accessibility
-            "settings.accessibility.section":           "Accesibilidad",
+            "settings.accessibility.section":           "ACCESIBILIDAD",
             "settings.accessibility.system_badge":       "SISTEMA",
             "settings.accessibility.voiceover":          "VoiceOver",
             "settings.accessibility.voiceover_sub":      "Navega y usa la app sin mirar la pantalla",
@@ -728,8 +728,8 @@ final class LanguageManager: ObservableObject {
             // Settings – Language
             "settings.language.section":        "Langue",
             // Settings – Preferences / General
-            "settings.preferences.section":     "Général",
-            "settings.sounds.section":           "Sons et Haptique",
+            "settings.preferences.section":     "GÉNÉRAL",
+            "settings.sounds.section":           "SONS ET HAPTIQUE",
             "settings.preferences.appearance":   "Apparence",
             "settings.preferences.appearance_sub": "Choisissez votre thème",
             "settings.preferences.system":       "Système",
@@ -744,7 +744,7 @@ final class LanguageManager: ObservableObject {
             "settings.preferences.auto_expand":      "Texte Large",
             "settings.preferences.auto_expand_sub":  "Texte plus grand et en gras pour une meilleure lecture",
             // Settings – Accessibility
-            "settings.accessibility.section":           "Accessibilité",
+            "settings.accessibility.section":           "ACCESSIBILITÉ",
             "settings.accessibility.system_badge":       "SYSTÈME",
             "settings.accessibility.voiceover":          "VoiceOver",
             "settings.accessibility.voiceover_sub":      "Naviguez et utilisez l'app sans regarder l'écran",
