@@ -18,7 +18,7 @@ struct NudgePaywallView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(spacing: 20) {
 
                 // MARK: - Onboarding-Style Hero Card
                 ZStack {
@@ -112,16 +112,16 @@ struct NudgePaywallView: View {
                 }
                 .padding(.horizontal, 20)
                 .opacity(appeared ? 1 : 0)
-                .offset(y: appeared ? 0 : 10)
-
+                .offset(y: appeared ? 0 : 10)                .padding(.bottom, 4)
                 // MARK: - Package Cards
                 if let offering = subscriptionManager.offerings?.current {
-                    VStack(spacing: 6) {
+                    VStack(spacing: 8) {
                         ForEach(offering.availablePackages, id: \.identifier) { pkg in
                             packageCard(pkg)
                         }
                     }
                     .padding(.horizontal, 20)
+                    .padding(.top, 6)
                 } else {
                     ProgressView()
                         .tint(.secondary)
@@ -136,8 +136,11 @@ struct NudgePaywallView: View {
                         .padding(.horizontal, 24)
                 }
 
+                Divider()
+                    .padding(.horizontal, 20)
+
                 // MARK: - CTA + Restore
-                VStack(spacing: 10) {
+                VStack(spacing: 12) {
                     Button(action: { purchase() }) {
                         Group {
                             if isPurchasing {
@@ -186,6 +189,21 @@ struct NudgePaywallView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 8)
                         .fixedSize(horizontal: false, vertical: true)
+
+                    // Legal links
+                    HStack(spacing: 0) {
+                        Link(lang["settings.about.privacy"],
+                             destination: URL(string: "https://benjaminbelloeil.github.io/Nudge/privacy.html")!)
+                        Text(" · ").foregroundStyle(.tertiary)
+                        Link(lang["settings.about.terms"],
+                             destination: URL(string: "https://benjaminbelloeil.github.io/Nudge/terms.html")!)
+                        Text(" · ").foregroundStyle(.tertiary)
+                        Link(lang["paywall.license"],
+                             destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
+                    }
+                    .font(.system(size: 10))
+                    .foregroundStyle(.tertiary)
+                    .tint(.secondary)
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 24)

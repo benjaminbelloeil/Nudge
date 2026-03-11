@@ -225,18 +225,18 @@ final class NotificationManager {
             case .tired:
                 let pool: [Msg] = switch lang {
                 case .english: [
-                    ("Low energy? That's okay.", "Pick 2-step mode and do the bare minimum."),
-                    ("Even tired days count", "One tiny nudge before bed — that's it."),
+                    ("Low energy? That's okay.", "Open Nudge and start with just your first step."),
+                    ("Even tired days count", "One tiny nudge before bed. That's it."),
                     ("Rest is valid. So is this.", "One small move before you close the day.")
                 ]
                 case .spanish: [
-                    ("¿Poca energía? Está bien.", "Elige el modo de 2 pasos y haz lo mínimo."),
-                    ("Los días cansados también cuentan", "Un pequeño nudge antes de dormir — eso es todo."),
+                    ("¿Poca energía? Está bien.", "Abre Nudge y empieza con solo tu primer paso."),
+                    ("Los días cansados también cuentan", "Un pequeño nudge antes de dormir. Eso es todo."),
                     ("Descansar es válido. Esto también.", "Un pequeño paso antes de cerrar el día.")
                 ]
                 case .french: [
-                    ("Peu d'énergie ? C'est ok.", "Choisis le mode 2 étapes et fais le minimum."),
-                    ("Même les jours fatigués comptent", "Un petit nudge avant de dormir — c'est tout."),
+                    ("Peu d'énergie ? C'est ok.", "Ouvre Nudge et commence par ton premier pas seulement."),
+                    ("Même les jours fatigués comptent", "Un petit nudge avant de dormir. C'est tout."),
                     ("Se reposer est valide. Ça aussi.", "Un petit geste avant de finir la journée.")
                 ]
                 }
@@ -360,15 +360,15 @@ final class NotificationManager {
         if s >= 5 {
             let pool: [Msg] = switch lang {
             case .english: [
-                ("New week, same fire 🔥", "Streak at \(s) days. Free nudges reset — keep burning."),
+                ("New week, same fire 🔥", "Streak at \(s) days. Free nudges reset. Keep burning."),
                 ("Week starts strong 💪", "You've been consistent. Free nudges reset. Don't slow down.")
             ]
             case .spanish: [
-                ("Nueva semana, mismo fuego 🔥", "Racha de \(s) días. Nudges gratis renovados — sigue ardiendo."),
+                ("Nueva semana, mismo fuego 🔥", "Racha de \(s) días. Nudges gratis renovados. Sigue ardiendo."),
                 ("La semana empieza fuerte 💪", "Has sido constante. Nudges gratis renovados. No bajes el ritmo.")
             ]
             case .french: [
-                ("Nouvelle semaine, même flamme 🔥", "Série de \(s) jours. Nudges gratuits réinitialisés — continue."),
+                ("Nouvelle semaine, même flamme 🔥", "Série de \(s) jours. Nudges gratuits réinitialisés. Continue."),
                 ("La semaine commence fort 💪", "Tu as été régulier. Nudges gratuits réinitialisés. Ne ralentis pas.")
             ]
             }

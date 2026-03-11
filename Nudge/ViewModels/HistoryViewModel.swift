@@ -28,8 +28,23 @@ final class HistoryViewModel: ObservableObject {
                 self.insightTask = Task { await self.refreshInsight(entries: newEntries) }
             }
             .store(in: &cancellables)
+
+        // Re-generate insight when app language changes
+        LanguageManager.shared.$language
+            .dropFirst()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.insightTask?.cancel()
+                self.insightTask = Task { await self.refreshInsight(entries: self.persistence.entries) }
+            }
+            .store(in: &cancellables)
+
         // Populate on first load — fallback first, AI async
         procrastinationSummary = Self.buildProcrastinationSummary(entries: persistence.entries)
+        if persistence.entries.count >= 3 && InsightService.isAvailable {
+            isGeneratingInsight = true
+        }
         insightTask = Task { await self.refreshInsight(entries: persistence.entries) }
     }
 
@@ -268,10 +283,14 @@ final class HistoryViewModel: ObservableObject {
     // MARK: - Apple Intelligence Insight Generation
 
     private func refreshInsight(entries: [NudgeEntry]) async {
-        guard entries.count >= 3, InsightService.isAvailable else { return }
+        guard entries.count >= 3, InsightService.isAvailable else {
+            isGeneratingInsight = false
+            return
+        }
         isGeneratingInsight = true
         let snapshot = buildSnapshot(entries: entries)
-        if let aiText = await insightService.generate(from: snapshot) {
+        let language = LanguageManager.shared.language
+        if let aiText = await insightService.generate(from: snapshot, language: language) {
             guard !Task.isCancelled else { isGeneratingInsight = false; return }
             procrastinationSummary = aiText
         }

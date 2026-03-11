@@ -404,6 +404,7 @@ final class LanguageManager: ObservableObject {
             "customer.plan":                    "Plan",
             // Paywall extras
             "paywall.restoring":                "Restoring…",
+            "paywall.license":                  "License Agreement",
             // Accessibility
             "a11y.completed":                   "Completed",
             "a11y.in_progress":                 "In progress",
@@ -686,6 +687,7 @@ final class LanguageManager: ObservableObject {
             "customer.plan":                    "Plan",
             // Paywall extras
             "paywall.restoring":                "Restaurando…",
+            "paywall.license":                  "Acuerdo de Licencia",
             // Accessibility
             "a11y.completed":                   "Completado",
             "a11y.in_progress":                 "En progreso",
@@ -968,6 +970,7 @@ final class LanguageManager: ObservableObject {
             "customer.plan":                    "Plan",
             // Paywall extras
             "paywall.restoring":                "Restauration…",
+            "paywall.license":                  "Contrat de Licence",
             // Accessibility
             "a11y.completed":                   "Complété",
             "a11y.in_progress":                 "En cours",

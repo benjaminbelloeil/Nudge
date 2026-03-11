@@ -295,26 +295,37 @@ struct SettingsView: View {
             SectionRow {
                 HStack(spacing: 14) {
                     RowIcon(name: "globe", color: Color(red: 0.40, green: 0.45, blue: 0.90))
-                    Text(lang["settings.language.section"])
-                        .font(.subheadline).fontWeight(.medium)
-                        .foregroundColor(.primary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(lang["settings.language.section"])
+                            .font(.subheadline).fontWeight(.medium)
+                        Text(languageManager.language.displayName)
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
                     Spacer()
-                    Picker("", selection: Binding(
-                        get: { languageManager.language },
-                        set: { newLang in
-                            languageManager.language = newLang
-                            if hapticsEnabled { UIImpactFeedbackGenerator(style: .medium).impactOccurred() }
-                            if notificationsEnabled {
-                                Task { await NotificationManager.shared.scheduleAll() }
-                            }
-                        }
-                    )) {
+                    HStack(spacing: 2) {
                         ForEach(AppLanguage.allCases) { appLang in
-                            Text(appLang.rawValue.uppercased()).tag(appLang)
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.18)) {
+                                    languageManager.language = appLang
+                                }
+                                if hapticsEnabled { HapticManager.selection() }
+                                if notificationsEnabled {
+                                    Task { await NotificationManager.shared.scheduleAll() }
+                                }
+                            } label: {
+                                Text(appLang.rawValue.uppercased())
+                                    .font(.system(size: 13, weight: languageManager.language == appLang ? .semibold : .regular))
+                                    .frame(width: 32, height: 28)
+                                    .background(languageManager.language == appLang ? Color.accentColor : Color.clear)
+                                    .foregroundColor(languageManager.language == appLang ? .white : .secondary)
+                                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
-                    .pickerStyle(.menu)
-                    .tint(.primary)
+                    .padding(3)
+                    .background(AppColors.elevatedCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
                 }
             }
         }
