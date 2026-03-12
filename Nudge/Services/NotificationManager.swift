@@ -364,7 +364,7 @@ final class NotificationManager {
                 ("Week starts strong 💪", "You've been consistent. Free nudges reset. Don't slow down.")
             ]
             case .spanish: [
-                ("Nueva semana, mismo fuego 🔥", "Racha de \(s) días. Nudges gratis renovados — sigue ardiendo."),
+                ("Nueva semana, mismo fuego 🔥", "Racha de \(s) días. Nudges gratis renovados. Sigue ardiendo."),
                 ("La semana empieza fuerte 💪", "Has sido constante. Nudges gratis renovados. No bajes el ritmo.")
             ]
             case .french: [
