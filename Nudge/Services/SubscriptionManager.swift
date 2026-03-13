@@ -26,7 +26,7 @@ final class SubscriptionManager: ObservableObject {
     static let yearlyProductID = "com.BenjaminBelloeil.Nudge.yearly"
 
     // Free tier limit
-    static let freeNudgesPerWeek = 2
+    static let freeNudgesPerWeek = 3
 
     // MARK: - Init
 
@@ -171,6 +171,30 @@ final class SubscriptionManager: ObservableObject {
         if debugForceProUser { return Int.max }
         if isLoading { return Int.max }
         return max(0, Self.freeNudgesPerWeek - nudgesCreatedThisWeek())
+    }
+
+    // MARK: - Pro AI Daily Limit
+
+    static let proAIDailyLimit = 50
+    private static let aiDailyCountKey = "nudge.aiDaily.count"
+    private static let aiDailyDateKey  = "nudge.aiDaily.date"
+
+    func aiNudgesGeneratedToday() -> Int {
+        let stored = UserDefaults.standard.string(forKey: Self.aiDailyDateKey) ?? ""
+        let today  = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .none)
+        guard stored == today else { return 0 }
+        return UserDefaults.standard.integer(forKey: Self.aiDailyCountKey)
+    }
+
+    func recordAINudgeGenerated() {
+        let today = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .none)
+        UserDefaults.standard.set(today, forKey: Self.aiDailyDateKey)
+        UserDefaults.standard.set(aiNudgesGeneratedToday() + 1, forKey: Self.aiDailyCountKey)
+    }
+
+    func canGenerateWithAI() -> Bool {
+        guard isProUser else { return true }
+        return aiNudgesGeneratedToday() < Self.proAIDailyLimit
     }
 }
 

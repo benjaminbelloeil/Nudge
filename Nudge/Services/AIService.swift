@@ -246,6 +246,11 @@ final class AIService {
 
             let label = result["frictionLabel"] ?? "nil"
             print("[AIService] [\(model)] Success — frictionLabel: \(label)")
+            if let usage = json["usageMetadata"] as? [String: Any] {
+                let inputTokens  = usage["promptTokenCount"]     as? Int ?? 0
+                let outputTokens = usage["candidatesTokenCount"] as? Int ?? 0
+                print("[AIService] [\(model)] Tokens — input: \(inputTokens), output: \(outputTokens), total: \(inputTokens + outputTokens)")
+            }
 
             if label == "CONTENT_BLOCKED" {
                 throw AIServiceError.contentViolation

@@ -184,58 +184,6 @@ final class InsightService {
 
     private func buildFallbackSpanish(stats: StatsSnapshot) -> String {
         var parts: [String] = []
-        if let step = stats.dropOffStep, let pct = stats.dropOffPct, pct >= 10 {
-            parts.append("El \(pct)% de tus nudges se detienen en el Paso \(step). Empieza el Paso \(step + 1) antes de cerrar la app y ese patrón se romperá.")
-        } else if let mood = stats.topMood, let moodPct = stats.topMoodCompletionPct, let moodTotal = stats.topMoodTotalCount {
-            let moodCompleted = Int((Double(moodPct) / 100.0 * Double(moodTotal)).rounded())
-            parts.append("Solo terminas \(moodCompleted) de \(moodTotal) nudges (\(moodPct)%) cuando te sientes \(mood). Completa el Paso 1 en el momento en que aparezca ese estado de ánimo, antes de que la evitación tome el control.")
-        } else {
-            let rate = stats.completionRatePct
-            if rate < 50 {
-                parts.append("Tu tasa de completado es del \(rate)%. Haz el Paso 1 justo después de crear un nudge mientras tu intención todavía está fresca.")
-            } else {
-                parts.append("Completas el \(rate)% de tus nudges. Hacer nudge a la misma hora cada día hará que esa tasa suba aún más.")
-            }
-        }
-        if let friction = stats.topFrictionLabel, let frictionPct = stats.topFrictionPct,
-           let energy = stats.bestEnergy, let energyPct = stats.bestEnergyCompletionPct {
-            parts.append("\"\(friction)\" representa el \(frictionPct)% de tus etiquetas de fricción y completas el \(energyPct)% de las tareas con energía \(energy), así que reserva ese momento para tus sesiones más exigentes.")
-        } else if let friction = stats.topFrictionLabel, let frictionPct = stats.topFrictionPct {
-            parts.append("\"\(friction)\" es tu principal bloqueo en el \(frictionPct)% de los nudges. Nómbralo antes de empezar y la resistencia se sentirá menor.")
-        } else if let energy = stats.bestEnergy, let energyPct = stats.bestEnergyCompletionPct {
-            parts.append("Completas el \(energyPct)% de las tareas con energía \(energy). Reserva esa franja para las tareas que llevas más tiempo evitando.")
-        }
-        return parts.joined(separator: " ")
-    }
-
-    private func buildFallbackFrench(stats: StatsSnapshot) -> String {
-        var parts: [String] = []
-        if let step = stats.dropOffStep, let pct = stats.dropOffPct, pct >= 10 {
-            parts.append("\(pct)% de tes nudges s'arrêtent à l'Étape \(step). Commence l'Étape \(step + 1) avant de fermer l'app et ce schéma se brisera.")
-        } else if let mood = stats.topMood, let moodPct = stats.topMoodCompletionPct, let moodTotal = stats.topMoodTotalCount {
-            let moodCompleted = Int((Double(moodPct) / 100.0 * Double(moodTotal)).rounded())
-            parts.append("Tu ne termines que \(moodCompleted) de tes \(moodTotal) nudges (\(moodPct)%) quand tu te sens \(mood). Complète l'Étape 1 dès que cet état apparaît, avant que l'évitement prenne le dessus.")
-        } else {
-            let rate = stats.completionRatePct
-            if rate < 50 {
-                parts.append("Ton taux de complétion est de \(rate)%. Fais l'Étape 1 juste après avoir créé un nudge pendant que ton intention est encore fraîche.")
-            } else {
-                parts.append("Tu complètes \(rate)% de tes nudges. Faire un nudge à la même heure chaque jour fera encore monter ce taux.")
-            }
-        }
-        if let friction = stats.topFrictionLabel, let frictionPct = stats.topFrictionPct,
-           let energy = stats.bestEnergy, let energyPct = stats.bestEnergyCompletionPct {
-            parts.append("\"\(friction)\" représente \(frictionPct)% de tes étiquettes de friction et tu complètes \(energyPct)% des tâches avec de l'énergie \(energy), donc réserve ce créneau pour tes sessions les plus exigeantes.")
-        } else if let friction = stats.topFrictionLabel, let frictionPct = stats.topFrictionPct {
-            parts.append("\"\(friction)\" est ton principal blocage dans \(frictionPct)% des nudges. Nomme-le avant de commencer et la résistance semblera moins grande.")
-        } else if let energy = stats.bestEnergy, let energyPct = stats.bestEnergyCompletionPct {
-            parts.append("Tu complètes \(energyPct)% des tâches avec de l'énergie \(energy). Réserve ce créneau pour les tâches que tu évites depuis le plus longtemps.")
-        }
-        return parts.joined(separator: " ")
-    }
-
-    private func buildFallbackSpanish(stats: StatsSnapshot) -> String {
-        var parts: [String] = []
 
         if let step = stats.dropOffStep, let pct = stats.dropOffPct, pct >= 10 {
             parts.append("El \(pct)% de tus nudges se detienen en el Paso \(step). Empieza el Paso \(step + 1) antes de cerrar la app y ese patrón desaparecerá.")

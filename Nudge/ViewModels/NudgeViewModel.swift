@@ -113,14 +113,15 @@ final class NudgeViewModel: ObservableObject {
         errorMessage = nil
         contentWarning = nil
 
-        // TIER 1: Gemini API (Pro only)
-        if subscriptionManager.isProUser {
+        // TIER 1: Gemini API (Pro only, subject to daily AI limit)
+        if subscriptionManager.isProUser && subscriptionManager.canGenerateWithAI() {
             do {
                 let service = AIService()
                 currentResult = try await service.generateNudge(
                     task: taskText, energy: selectedEnergy, mood: mood
                 )
                 currentSource = .ai
+                subscriptionManager.recordAINudgeGenerated()
                 isGenerating = false
                 print("[NudgeVM] Tier 1 success: Gemini")
                 return
