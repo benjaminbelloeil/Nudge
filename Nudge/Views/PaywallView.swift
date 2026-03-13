@@ -289,11 +289,11 @@ struct NudgePaywallView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 8) {
-                        Text(pkg.storeProduct.localizedTitle)
-                            .font(.body)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.primary)
+                    Text(pkg.storeProduct.localizedTitle)
+                        .font(.body)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    HStack(spacing: 6) {
                         if isYearly {
                             Text(lang["paywall.best_value"])
                                 .font(.system(size: 9, weight: .heavy))
@@ -303,13 +303,13 @@ struct NudgePaywallView: View {
                                 .background(Color.green.opacity(0.15))
                                 .clipShape(Capsule())
                         }
-                    }
-                    Text(isYearly
-                        ? "\(pkg.localizedPriceString)\(lang["paywall.per_year"])"
-                        : "\(pkg.localizedPriceString)\(lang["paywall.per_month"])"
-                    )
+                        Text(isYearly
+                            ? "\(pkg.localizedPriceString)\(lang["paywall.per_year"])"
+                            : "\(pkg.localizedPriceString)\(lang["paywall.per_month"])"
+                        )
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                    }
                 }
 
                 Spacer()
